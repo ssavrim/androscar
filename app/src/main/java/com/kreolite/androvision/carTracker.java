@@ -27,9 +27,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -141,8 +143,6 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 		}
 	};
 	private UsbService usbService;
-	private TextView display;
-	private EditText editText;
 	private MyHandler mHandler;
 	private final ServiceConnection usbConnection = new ServiceConnection() {
 		@Override
@@ -198,9 +198,8 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 			switch (msg.what) {
 				case UsbService.MESSAGE_FROM_SERIAL_PORT:
 					String data = (String) msg.obj;
-					//mActivity.get().display.append(data);
-					Toast.makeText(mActivity.get(), "Serial data: " + data, Toast.LENGTH_SHORT).show();
-					Log.i(_TAG, data);
+					Log.d(_TAG, "Received data from serial: " + data);
+					Toast.makeText(mActivity.get(), "DATA_RCV: " + data, Toast.LENGTH_SHORT).show();
 					break;
 				case UsbService.CTS_CHANGE:
 					Toast.makeText(mActivity.get(), "CTS_CHANGE",Toast.LENGTH_LONG).show();
@@ -235,7 +234,6 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 			_upperThreshold = new Scalar(60, 255, 255);
 		}
 		_showContourEnable = _sharedPreferences.getBoolean("contour", true);
-
 		_opencvCameraView = (JavaCameraView) findViewById(R.id.aav_activity_surface_view);
 		_opencvCameraView.setCvCameraViewListener(this);
 
@@ -250,21 +248,6 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 			}
 		});
 		mHandler = new MyHandler(this);
-
-		/*display = (TextView) findViewById(R.id.textView1);
-		editText = (EditText) findViewById(R.id.editText1);
-		Button sendButton = (Button) findViewById(R.id.buttonSend);
-		sendButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (!editText.getText().toString().equals("")) {
-					String data = editText.getText().toString();
-					if (usbService != null) { // if UsbService was correctly binded, Send data
-						usbService.write(data.getBytes());
-					}
-				}
-			}
-		});*/
 	}
 
 	@Override
@@ -339,6 +322,33 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 						| View.SYSTEM_UI_FLAG_FULLSCREEN);
 	}
 
+	private void updateActuator(){
+		String _pwmValues;
+		try {
+			if (_contourArea > MIN_CONTOUR_AREA) {
+				Log.i(_TAG, "Update actuator");
+				_mainController.updatePanTiltPWM(_screenCenterCoordinates, _centerPoint);
+				_mainController.updateMotorPWM(_contourArea);
+				_countOutOfFrame = 0;
+			} else {
+				if (_countOutOfFrame > 5) {
+					_mainController.reset();
+					_countOutOfFrame = 0;
+				}
+				_countOutOfFrame++;
+			}
+			_pwmValues = _mainController.getPWMValuesToJson();
+			if (_pwmValues != null) {
+				_pwmValues += "#"; // Add '#' to mark end of data
+				Log.d(_TAG, "Sending data to serial: " + _pwmValues);
+				if (usbService != null) {
+					usbService.write(_pwmValues.getBytes());
+				}
+			}
+		} catch (InterruptedException e) {
+			Log.e(_TAG, e.getMessage());
+		}
+	}
 	@Override
 	public void onCameraViewStarted(int width, int height) {
 		_rgbaImage = new Mat(height, width, CvType.CV_8UC4);
@@ -357,7 +367,6 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		synchronized (inputFrame) {
-
 			_rgbaImage = inputFrame.rgba();
 
 			if (android.os.Build.MODEL.equalsIgnoreCase("Nexus 5X")) {
@@ -379,8 +388,9 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 			MatOfPoint2f points = new MatOfPoint2f();
 			_contourArea = 7;
 			for (int i = 0, n = contours.size(); i < n; i++) {
-				Log.i(_TAG, "contours: " + contours.size());
+
 				current_contour = Imgproc.contourArea(contours.get(i));
+				Log.i(_TAG, "contour Area: " + current_contour);
 				if (current_contour > _contourArea) {
 					_contourArea = current_contour;
 					contours.get(i).convertTo(points, CvType.CV_32FC2); // contours.get(x) is a single MatOfPoint, but to use minEnclosingCircle we need to pass a MatOfPoint2f so we need to do a
@@ -392,6 +402,7 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 				//Imgproc.circle(_rgbaImage, _centerPoint, 3, new Scalar(255, 0, 0), Core.FILLED);
 				if (_showContourEnable)
 					Imgproc.circle(_rgbaImage, _centerPoint, (int) Math.round(Math.sqrt(_contourArea / Math.PI)), new Scalar(255, 0, 0), 3, 8, 0);// Core.FILLED);
+				updateActuator();
 			}
 			contours.clear();
 		}

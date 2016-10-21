@@ -17,6 +17,10 @@
 
 package com.kreolite.androvision;
 
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opencv.core.Point;
 
 public class ActuatorController {
@@ -71,6 +75,19 @@ public class ActuatorController {
 
 	public synchronized double[] getPWMValues() {
 		return new double[] { _pwmPan, _pwmTilt, _pwmMotor, _pwmFrontWheels };
+	}
+	public synchronized String getPWMValuesToJson() {
+		try {
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("pan", (int)_pwmPan);
+			jsonObj.put("tilt", (int)_pwmTilt);
+			jsonObj.put("throttle", (int)_pwmMotor);
+			jsonObj.put("steering", (int)_pwmFrontWheels);
+			return jsonObj.toString();
+		} catch (JSONException e) {
+			Log.e(_TAG, e.getMessage());
+		}
+		return null;
 	}
 
 	public void updateMotorPWM(double currentContourArea) throws InterruptedException {

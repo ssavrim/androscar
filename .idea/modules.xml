@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/androVision.iml" filepath="$PROJECT_DIR$/androVision.iml" />
+      <module fileurl="file://$PROJECT_DIR$/androvision.iml" filepath="$PROJECT_DIR$/androvision.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

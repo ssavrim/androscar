@@ -59,6 +59,7 @@
             android:screenOrientation="landscape"/>
         <activity
             android:name=".SettingsActivity"
+            android:screenOrientation="landscape"
             android:label="@string/settings" >
             <intent-filter>
                 <category android:name="android.intent.category.PREFERENCE" />
