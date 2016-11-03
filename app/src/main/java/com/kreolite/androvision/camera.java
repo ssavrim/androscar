@@ -149,12 +149,6 @@ public class camera extends AppCompatActivity implements CvCameraViewListener2 {
                 Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
                 break;
         }
-        /*
-        // Rotate mRgba 90 degrees
-        Core.transpose(mRgba, mRgbaT);
-        Imgproc.resize(mRgbaT, mRgbaF, mRgbaF.size(), 0, 0, 0);
-        Core.flip(mRgbaF, mRgba, 1);
-        */
         return mRgba;
     }
 
