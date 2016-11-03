@@ -7,48 +7,19 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.kreolite.androvision.menu">
+    tools:context="com.kreolite.androvision.menu"
+    android:id="@+id/main_layout">
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Camera"
-        android:id="@+id/btnCamera"
         android:onClick="openCamera"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Blob Detection"
-        android:id="@+id/btnBlob"
-        android:onClick="blobDetect"
-        android:layout_below="@+id/btnCamera"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Face Detection"
-        android:id="@+id/btnFaceDetect"
-        android:onClick="faceDetect"
-        android:layout_below="@+id/btnBlob"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Motion Tracker"
-        android:onClick="trackMotion"
-        android:layout_below="@+id/btnFaceDetect"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:id="@+id/btnCarTracker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Car Tracker"

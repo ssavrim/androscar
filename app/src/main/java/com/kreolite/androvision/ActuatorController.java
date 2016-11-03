@@ -26,13 +26,18 @@ import org.opencv.core.Point;
 public class ActuatorController {
 	private static final String _TAG = "ActuatorController";
 
-	public static final int MIN_PAN_PWM = 600;
+	/*public static final int MIN_PAN_PWM = 600;
 	public static final int MAX_PAN_PWM = 2500;
 	public static final int MIN_TILT_PWM = 1400;
-	public static final int MAX_TILT_PWM = 2250;
+	public static final int MAX_TILT_PWM = 2250;*/
+	public static final int MIN_PAN_PWM = 20;
+	public static final int MAX_PAN_PWM = 150;
+	public static final int MIN_TILT_PWM = 20;
+	public static final int MAX_TILT_PWM = 150;
+
 
 	public static final int MID_PAN_PWM = (MAX_PAN_PWM + MIN_PAN_PWM) / 2;
-	public static final int MID_TILT_PWM = 1800;// (MAX_TILT_PWM + MIN_TILT_PWM) / 2;
+	public static final int MID_TILT_PWM = (MAX_TILT_PWM + MIN_TILT_PWM) / 2;
 
 	public static final int RANGE_PAN_PWM = MAX_PAN_PWM - MID_PAN_PWM;
 
@@ -76,14 +81,14 @@ public class ActuatorController {
 	public synchronized double[] getPWMValues() {
 		return new double[] { _pwmPan, _pwmTilt, _pwmMotor, _pwmFrontWheels };
 	}
-	public synchronized String getPWMValuesToJson() {
+	public synchronized JSONObject getPWMValuesToJson() {
 		try {
 			JSONObject jsonObj = new JSONObject();
 			jsonObj.put("pan", (int)_pwmPan);
 			jsonObj.put("tilt", (int)_pwmTilt);
 			jsonObj.put("throttle", (int)_pwmMotor);
 			jsonObj.put("steering", (int)_pwmFrontWheels);
-			return jsonObj.toString();
+			return jsonObj;
 		} catch (JSONException e) {
 			Log.e(_TAG, e.getMessage());
 		}

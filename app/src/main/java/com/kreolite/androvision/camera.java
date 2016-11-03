@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -90,6 +92,12 @@ public class camera extends AppCompatActivity implements CvCameraViewListener2 {
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        hideNavigationBar();
+        return super.onTouchEvent(event);
+    }
+
+    @Override
     public void onResume()
     {
         super.onResume();
@@ -100,6 +108,7 @@ public class camera extends AppCompatActivity implements CvCameraViewListener2 {
             Log.d(TAG, "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
+        hideNavigationBar();
     }
 
     public void onDestroy() {
@@ -161,5 +170,10 @@ public class camera extends AppCompatActivity implements CvCameraViewListener2 {
         }
 
         return true;
+    }
+    private void hideNavigationBar() {
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 }

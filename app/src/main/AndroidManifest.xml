@@ -38,22 +38,12 @@
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".camera"
             android:screenOrientation="landscape" />
-        <activity
-            android:name=".blob"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".facedetect"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".motiontracker"
-            android:screenOrientation="landscape"/>
         <activity
             android:name=".carTracker"
             android:screenOrientation="landscape"/>
@@ -70,5 +60,4 @@
             android:enabled="true">
         </service>
     </application>
-
 </manifest>
