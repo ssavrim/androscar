@@ -10,6 +10,8 @@
         android:smallScreens="true" />
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -25,7 +27,7 @@
         android:required="false" />
     <uses-feature
         android:name="android.hardware.usb.host"
-        android:required="true"/>
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -34,8 +36,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".menu"
-            android:screenOrientation="landscape">
+            android:name=".menu">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -46,18 +47,22 @@
             android:screenOrientation="landscape" />
         <activity
             android:name=".carTracker"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape" />
         <activity
             android:name=".SettingsActivity"
-            android:screenOrientation="landscape"
-            android:label="@string/settings" >
+            android:label="@string/settings"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <category android:name="android.intent.category.PREFERENCE" />
             </intent-filter>
         </activity>
+
         <service
             android:name=".UsbService"
-            android:enabled="true">
-        </service>
+            android:enabled="true" />
+
+        <activity android:name=".BluetoothRemoteControl" />
+        <activity android:name=".ListenerActivity"></activity>
     </application>
+
 </manifest>

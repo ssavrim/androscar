@@ -6,7 +6,7 @@ android {
     sourceSets.main.jni.srcDirs = []
     defaultConfig {
         applicationId "com.kreolite.androvision"
-        minSdkVersion 23
+        minSdkVersion 18
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
@@ -26,4 +26,5 @@ dependencies {
     compile 'com.android.support:design:24.2.0'
     compile 'com.github.felHR85:UsbSerial:4.5'
     compile 'com.github.ctodobom:OpenCV-3.1.0-Android:-SNAPSHOT'
+    compile 'com.akexorcist:bluetoothspp:1.0.0'
 }

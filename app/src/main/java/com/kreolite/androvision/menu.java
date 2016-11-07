@@ -99,6 +99,15 @@ public class menu extends AppCompatActivity implements ActivityCompat.OnRequestP
         }
         // END_INCLUDE(camera_permission)
     }
+
+    public void remoteControl(View view) {
+        Intent intent = new Intent(this, BluetoothRemoteControl.class);
+        startActivity(intent);
+    }
+    public void remoteClient(View view) {
+        Intent intent = new Intent(this, ListenerActivity.class);
+        startActivity(intent);
+    }
     /**
      * Callback received when a permissions request has been completed.
      */
