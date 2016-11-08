@@ -11,7 +11,7 @@
     tools:context="com.kreolite.androvision.BluetoothRemoteControl">
 
     <Button
-        android:text="Down"
+        android:text="Reverse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/btnUp"
@@ -36,7 +36,7 @@
         android:id="@+id/btnRight" />
 
     <Button
-        android:text="Up"
+        android:text="Forward"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="84dp"

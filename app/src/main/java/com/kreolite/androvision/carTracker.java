@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -51,6 +52,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.lang.ref.WeakReference;
@@ -68,6 +70,7 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 
     private JavaCameraView _opencvCameraView;
     private ActuatorController _mainController;
+    private String _lastPan = "";
 
     volatile double _contourArea = 7;
     volatile Point _centerPoint = new Point(-1, -1);
@@ -77,8 +80,8 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
     Mat _hsvMat;
     Mat _processedMat;
     Mat _dilatedMat;
-    Scalar _lowerThreshold;
-    Scalar _upperThreshold;
+    Scalar _lowerThreshold = new Scalar(60, 100, 30); // Green
+    Scalar _upperThreshold = new Scalar(130, 255, 255); // Green
     final List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 
     SharedPreferences _sharedPreferences;
@@ -188,7 +191,6 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
                 case UsbService.MESSAGE_FROM_SERIAL_PORT:
                     String data = (String) msg.obj;
                     Log.i(_TAG, "Received data from serial: " + data);
-                    //Toast.makeText(mActivity.get(), "DATA_RCV: " + data, Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.CTS_CHANGE:
                     Toast.makeText(mActivity.get(), "CTS_CHANGE", Toast.LENGTH_LONG).show();
@@ -199,7 +201,28 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
             }
         }
     }
-
+    private void setupTrackingColor() {
+        _trackingColor = Integer.parseInt(_sharedPreferences.getString(getString(R.string.color_key), "0"));
+        switch (_trackingColor) {
+            // Refer to http://colorizer.org/ to adjust colorization
+            case 0: // Green
+                _lowerThreshold.set(new double[]{60, 100, 30});
+                _upperThreshold.set(new double[]{130, 255, 255});
+                break;
+            case 1: // Blue
+                _lowerThreshold.set(new double[]{160, 50, 90});
+                _upperThreshold.set(new double[]{255, 255, 255});
+                break;
+            case 2: // Orange
+                _lowerThreshold.set(new double[]{1, 50, 150});
+                _upperThreshold.set(new double[]{60, 255, 255});
+                break;
+            default: // Green
+                _lowerThreshold.set(new double[]{60, 100, 30});
+                _upperThreshold.set(new double[]{130, 255, 255});
+                break;
+        }
+    }
     /**
      * Called when the activity is first created.
      */
@@ -212,23 +235,12 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
         _sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        _trackingColor = Integer.parseInt(_sharedPreferences.getString(getString(R.string.color_key), "0"));
+        setupTrackingColor();
 
-        if (_trackingColor == 0) {
-            _lowerThreshold = new Scalar(60, 100, 30); // Green
-            _upperThreshold = new Scalar(130, 255, 255);
-        } else if (_trackingColor == 1) {
-            _lowerThreshold = new Scalar(160, 50, 90); // Purple
-            _upperThreshold = new Scalar(255, 255, 255);
-        } else if (_trackingColor == 2) {
-            _lowerThreshold = new Scalar(1, 50, 150); // Orange
-            _upperThreshold = new Scalar(60, 255, 255);
-        }
         _showContourEnable = _sharedPreferences.getBoolean("contour", true);
         _opencvCameraView = (JavaCameraView) findViewById(R.id.car_tracker_layout);
         _opencvCameraView.setCvCameraViewListener(this);
-
-        _opencvCameraView.setMaxFrameSize(352, 288); // (176, 144); //(320, 240); <-Callback buffer is too small for these resolutions.
+        _opencvCameraView.setMaxFrameSize(320, 240); // (176, 144); //(320, 240); <-Callback buffer is too small for these resolutions.
         _mainController = new ActuatorController();
         _countOutOfFrame = 0;
 
@@ -245,26 +257,7 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         _showContourEnable = _sharedPreferences.getBoolean("contour", true);
-        _trackingColor = Integer.parseInt(_sharedPreferences.getString(getString(R.string.color_key), "0"));
-
-        switch (_trackingColor) {
-            case 0: // Green
-                _lowerThreshold.set(new double[]{60, 100, 30, 0});
-                _upperThreshold.set(new double[]{130, 255, 255, 0});
-                break;
-            case 1: // Purple
-                _lowerThreshold.set(new double[]{160, 50, 90});
-                _upperThreshold.set(new double[]{255, 255, 255, 0});
-                break;
-            case 2: // Orange
-                _lowerThreshold.set(new double[]{1, 50, 150});
-                _upperThreshold.set(new double[]{60, 255, 255, 0});
-                break;
-            default:
-                _lowerThreshold.set(new double[]{60, 100, 30, 0});
-                _upperThreshold.set(new double[]{130, 255, 255, 0});
-                break;
-        }
+        setupTrackingColor();
     }
 
     @Override
@@ -315,9 +308,7 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
 
     private void updateActuator() {
         JSONObject _pwmValues;
-        String steering = "";
-        String throttle = "";
-        String tilt = "";
+        String pan = "";
         try {
             if (_contourArea > MIN_CONTOUR_AREA) {
                 _mainController.updatePanTiltPWM(_screenCenterCoordinates, _centerPoint);
@@ -333,11 +324,21 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
             _pwmValues = _mainController.getPWMValuesToJson();
             if (_pwmValues != null) {
                 Log.d(_TAG, "Sending raw data:" + _pwmValues.toString());
-                if (usbService != null) {
-                    usbService.write(_mainController.getPWMValuesToJson().toString().getBytes());
+                if ((int) _pwmValues.get("pan") < ActuatorController.MID_PAN_PWM) {
+                    pan = "4";
+                } else if ((int) _pwmValues.get("pan") > ActuatorController.MID_PAN_PWM) {
+                    pan = "6";
+                } else {
+                    pan = "";
+                }
+                if (usbService != null && _lastPan != pan) {
+                    //usbService.write(_mainController.getPWMValuesToJson().toString().getBytes());
+                    Log.i(_TAG, pan);
+                    usbService.write(pan.getBytes());
+                    _lastPan = pan;
                 }
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | JSONException e) {
             Log.e(_TAG, e.getMessage());
         }
     }
@@ -361,21 +362,44 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         synchronized (inputFrame) {
             _rgbaImage = inputFrame.rgba();
-
-            if (android.os.Build.MODEL.equalsIgnoreCase("Nexus 5X")) {
-                Core.flip(_rgbaImage, _rgbaImage, -1);
-            }
-
             double current_contour;
 
             // In contrast to the C++ interface, Android API captures images in the RGBA format.
             // Also, in HSV space, only the hue determines which color it is. Saturation determines
             // how 'white' the color is, and Value determines how 'dark' the color is.
+            //Imgproc.medianBlur(_rgbaImage, _rgbaImage, 3);
             Imgproc.cvtColor(_rgbaImage, _hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
 
             Core.inRange(_hsvMat, _lowerThreshold, _upperThreshold, _processedMat);
+            Imgproc.GaussianBlur(_processedMat, _processedMat, new Size(5,5), 2, 2);
+            /* Hough Circle algorithm
+            Mat circles = new Mat();
+            int iCannyUpperThreshold = 80;
+            int iMinRadius = 0;
+            int iMaxRadius = 0;
+            int iAccumulator = 100;
 
-            // Imgproc.dilate(_processedMat, _dilatedMat, new Mat());
+            Imgproc.HoughCircles(_processedMat, circles, Imgproc.CV_HOUGH_GRADIENT,
+                    2.0, _processedMat.rows()/8, iCannyUpperThreshold, iAccumulator,
+                    iMinRadius, iMaxRadius);
+
+            if (circles.cols() > 0)
+                for (int x = 0; x < circles.cols(); x++)
+                {
+                    double vCircle[] = circles.get(0,x);
+                    if (vCircle == null)
+                        break;
+
+                    _centerPoint = new Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
+                    int radius = (int)Math.round(vCircle[2]);
+                    Log.i("Radius", "circle radius: " + radius + " - coordinates: " + _centerPoint + " - center coordinates" + _screenCenterCoordinates);
+
+                    // draw the found circle
+                    if (_showContourEnable) {
+                        Imgproc.circle(_rgbaImage, _centerPoint, radius, new Scalar(0,255,0), Core.FILLED);
+                    }
+                }
+             */
             Imgproc.erode(_processedMat, _dilatedMat, new Mat());
             Imgproc.findContours(_dilatedMat, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
             MatOfPoint2f points = new MatOfPoint2f();
@@ -389,9 +413,8 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
             }
             if (!points.empty() && _contourArea > MIN_CONTOUR_AREA) {
                 Imgproc.minEnclosingCircle(points, _centerPoint, null);
-                //Imgproc.circle(_rgbaImage, _centerPoint, 3, new Scalar(255, 0, 0), Core.FILLED);
                 if (_showContourEnable)
-                    Imgproc.circle(_rgbaImage, _centerPoint, (int) Math.round(Math.sqrt(_contourArea / Math.PI)), new Scalar(255, 0, 0), 3, 8, 0);// Core.FILLED);
+                    Imgproc.circle(_rgbaImage, _centerPoint, (int) Math.round(Math.sqrt(_contourArea / Math.PI)), new Scalar(255, 0, 0), Core.FILLED);
                 updateActuator();
             }
             contours.clear();

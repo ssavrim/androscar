@@ -26,14 +26,10 @@ import org.opencv.core.Point;
 public class ActuatorController {
 	private static final String _TAG = "ActuatorController";
 
-	/*public static final int MIN_PAN_PWM = 600;
+	public static final int MIN_PAN_PWM = 600;
 	public static final int MAX_PAN_PWM = 2500;
 	public static final int MIN_TILT_PWM = 1400;
-	public static final int MAX_TILT_PWM = 2250;*/
-	public static final int MIN_PAN_PWM = 20;
-	public static final int MAX_PAN_PWM = 150;
-	public static final int MIN_TILT_PWM = 20;
-	public static final int MAX_TILT_PWM = 150;
+	public static final int MAX_TILT_PWM = 2250;
 
 
 	public static final int MID_PAN_PWM = (MAX_PAN_PWM + MIN_PAN_PWM) / 2;
@@ -197,12 +193,6 @@ public class ActuatorController {
 			_pwmPan = error.x - constrain(kD_X * derivativeTerm.x, -9, 9);
 
 			_pwmPan = constrain(_pwmPan, MIN_PAN_PWM, MAX_PAN_PWM);
-
-			// if (_pwmPan >= MAX_PAN_PWM) {
-			// reverse = true;
-			// _pwmPan = MID_PAN_PWM;
-			// }
-
 			_lastCenterPoint.x = currentCenterPoint.x;
 		}
 
