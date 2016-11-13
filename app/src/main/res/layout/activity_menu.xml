@@ -28,16 +28,16 @@
  />
 
     <Button
-        android:text="Remote Client"
+        android:text="Remote Control"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="remoteClient"
+        android:onClick="remoteControl"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
     <Button
-        android:text="Remote Server"
-        android:onClick="remoteControl"
+        android:text="Car view"
+        android:onClick="carView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button17"

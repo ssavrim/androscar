@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '24.0.2'
+    buildToolsVersion '24.0.3'
     sourceSets.main.jni.srcDirs = []
     defaultConfig {
         applicationId "com.kreolite.androvision"
@@ -19,6 +19,13 @@ android {
     }
 }
 
+repositories {
+    maven {
+        url 'https://github.com/rosjava/rosjava_mvn_repo/raw/master'
+    }
+    mavenCentral()
+}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     //testCompile 'junit:junit:4.12'
@@ -27,4 +34,17 @@ dependencies {
     compile 'com.github.felHR85:UsbSerial:4.5'
     compile 'com.github.ctodobom:OpenCV-3.1.0-Android:-SNAPSHOT'
     compile 'com.akexorcist:bluetoothspp:1.0.0'
+    compile ('org.ros.android_core:android_honeycomb_mr2:[0.1,0.2)') {
+        exclude group: 'junit'
+        exclude group: 'xml-apis'
+    }
+    // e.g. official msgs
+    compile 'org.ros.rosjava_messages:std_msgs:[0.1,)'
+    compile 'org.ros.rosjava_messages:sensor_msgs:[0.1,)'
+    compile 'org.ros.rosjava_messages:geometry_msgs:[0.1,)'
+}
+
+android.packagingOptions {
+    exclude 'META-INF/LICENSE.txt'
+    exclude 'META-INF/NOTICE.txt'
 }

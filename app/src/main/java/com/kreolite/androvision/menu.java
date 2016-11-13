@@ -29,6 +29,12 @@ public class menu extends AppCompatActivity implements ActivityCompat.OnRequestP
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         mLayout = findViewById(R.id.main_layout);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Camera permission has not been granted.
+            requestCameraPermission();
+
+        }
     }
     /**
      * Requests the Camera permission.
@@ -64,48 +70,22 @@ public class menu extends AppCompatActivity implements ActivityCompat.OnRequestP
     }
 
     public void openCamera(View view) {
-        // BEGIN_INCLUDE(camera_permission)
-        // Check if the Camera permission is already available.
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Camera permission has not been granted.
-            requestCameraPermission();
-
-        } else {
-            // Camera permissions is already available, show the camera preview.
-            Log.i(TAG,
-                    "CAMERA permission has already been granted. Displaying camera preview.");
-            Intent intent = new Intent(this, camera.class);
-            startActivity(intent);
-        }
-        // END_INCLUDE(camera_permission)
+        Intent intent = new Intent(this, camera.class);
+        startActivity(intent);
     }
 
     public void carTracker(View view) {
-        // BEGIN_INCLUDE(camera_permission)
-        // Check if the Camera permission is already available.
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Camera permission has not been granted.
-            requestCameraPermission();
-
-        } else {
-
-            // Camera permissions is already available, show the camera preview.
-            Log.i(TAG,
-                    "CAMERA permission has already been granted. Displaying camera preview.");
-            Intent intent = new Intent(this, carTracker.class);
-            startActivity(intent);
-        }
-        // END_INCLUDE(camera_permission)
+        Intent intent = new Intent(this, carTracker.class);
+        startActivity(intent);
     }
 
     public void remoteControl(View view) {
-        Intent intent = new Intent(this, BluetoothRemoteControl.class);
+        //Intent intent = new Intent(this, BluetoothRemoteControl.class);
+        Intent intent = new Intent(this, RosRemoteControlActivity.class);
         startActivity(intent);
     }
-    public void remoteClient(View view) {
-        Intent intent = new Intent(this, ListenerActivity.class);
+    public void carView(View view) {
+        Intent intent = new Intent(this, RosCameraActivity.class);
         startActivity(intent);
     }
     /**
