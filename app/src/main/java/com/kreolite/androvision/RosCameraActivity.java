@@ -6,8 +6,10 @@ import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+import org.ros.android.MessageCallable;
 import org.ros.android.RosActivity;
 import org.ros.android.view.camera.RosCameraPreviewView;
+import org.ros.android.view.RosTextView;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import android.util.Log;
@@ -16,6 +18,7 @@ import java.io.IOException;
 public class RosCameraActivity extends RosActivity {
     private static final String _TAG = "RosCamera";
     private int cameraId;
+    private CarCommandListener carCommand;
     private RosCameraPreviewView rosCameraPreviewView;
 
     public RosCameraActivity() {
@@ -29,6 +32,7 @@ public class RosCameraActivity extends RosActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_camera);
         rosCameraPreviewView = (RosCameraPreviewView) findViewById(R.id.ros_camera_preview_view);
+        carCommand = new CarCommandListener(this, "command");
     }
 
     @Override
@@ -66,6 +70,7 @@ public class RosCameraActivity extends RosActivity {
             NodeConfiguration nodeConfiguration =
                     NodeConfiguration.newPublic(local_network_address.getHostAddress(), getMasterUri());
             nodeMainExecutor.execute(rosCameraPreviewView, nodeConfiguration);
+            nodeMainExecutor.execute(carCommand, nodeConfiguration);
         } catch (IOException e) {
             // Socket problem
             Log.e(_TAG, "socket error trying to get networking information from the master uri");

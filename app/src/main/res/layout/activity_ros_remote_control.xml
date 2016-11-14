@@ -1,64 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_ros_remote_control"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     tools:context="com.kreolite.androvision.RosRemoteControlActivity"
     android:orientation="vertical">
+
     <org.ros.android.view.RosImageView
         android:id="@+id/rosImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="false"
-        android:layout_toStartOf="@+id/btnLeft"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:text="Forward"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnForward"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/btnLeft"
-        android:layout_marginStart="22dp"
-        android:layout_marginTop="34dp" />
+        android:layout_alignParentStart="true" />
 
-    <Button
-        android:text="Reverse"
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnReverse"
-        android:layout_below="@+id/btnStop"
-        android:layout_toEndOf="@+id/btnLeft"
-        android:layout_marginTop="26dp" />
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:alpha="0.5">
 
-    <Button
-        android:text="Right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnRight"
-        android:layout_alignBaseline="@+id/btnStop"
-        android:layout_alignBottom="@+id/btnStop"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="25dp" />
+        <Button
+            android:text="Right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnRight"
+            android:textSize="10sp"
+            android:layout_below="@+id/btnForward"
+            android:layout_alignParentEnd="true" />
 
-    <Button
-        android:text="Stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnStop"
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/btnForward"
-        android:layout_toStartOf="@+id/btnRight" />
+        <Button
+            android:text="Reverse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnReverse"
+            android:textSize="10sp"
+            android:layout_below="@+id/btnStop"
+            android:layout_toEndOf="@+id/btnLeft" />
 
-    <Button
-        android:text="Left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnLeft"
-        android:layout_alignBaseline="@+id/btnStop"
-        android:layout_alignBottom="@+id/btnStop"
-        android:layout_toStartOf="@+id/btnStop"
-        android:layout_marginEnd="13dp" />
+        <Button
+            android:text="Forward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnForward"
+            android:layout_above="@+id/btnLeft"
+            android:layout_alignStart="@+id/btnStop"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="10sp" />
+
+        <Button
+            android:text="Left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnLeft"
+            android:textSize="10sp"
+            android:layout_above="@+id/btnReverse"
+            android:layout_toStartOf="@+id/btnStop" />
+
+        <Button
+            android:text="Stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnStop"
+            android:textSize="10sp"
+            android:layout_marginTop="47dp"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@+id/btnRight" />
+
+    </RelativeLayout>
+
 </RelativeLayout>

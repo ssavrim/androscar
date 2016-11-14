@@ -3,6 +3,8 @@ package com.kreolite.androvision;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 
 import org.ros.android.BitmapFromCompressedImage;
@@ -25,6 +27,8 @@ public class RosRemoteControlActivity extends RosActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_remote_control);
         rosImageView = (RosImageView<sensor_msgs.CompressedImage>)findViewById(R.id.rosImageView);
         rosImageView.setTopicName("/camera/image/compressed");
@@ -48,7 +52,7 @@ public class RosRemoteControlActivity extends RosActivity {
         }
 
     }
-    public void setup() {
+    private void setup() {
         Button btnUp = (Button)findViewById(R.id.btnForward);
         btnUp.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){

@@ -15,25 +15,25 @@ import org.ros.node.topic.Publisher;
  * @author ssavrimo@gmail.com
  */
 public class CarCommandPublisher extends AbstractNodeMain {
-    private String topic_name;
+    private String topicName;
     private Publisher<std_msgs.String> publisher;
 
     public CarCommandPublisher() {
-        topic_name = "command";
+        topicName = "command";
     }
 
     public CarCommandPublisher(String topic) {
-        topic_name = topic;
+        topicName = topic;
     }
 
     @Override
     public GraphName getDefaultNodeName() {
-        return GraphName.of("car/command");
+        return GraphName.of("car_command/publisher");
     }
 
     @Override
     public void onStart(final ConnectedNode connectedNode) {
-        publisher = connectedNode.newPublisher(topic_name, std_msgs.String._TYPE);
+        publisher = connectedNode.newPublisher(topicName, std_msgs.String._TYPE);
     }
 
     @Override
