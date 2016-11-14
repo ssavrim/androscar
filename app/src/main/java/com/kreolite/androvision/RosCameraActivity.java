@@ -2,17 +2,17 @@ package com.kreolite.androvision;
 
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
-import org.ros.android.MessageCallable;
+
 import org.ros.android.RosActivity;
 import org.ros.android.view.camera.RosCameraPreviewView;
-import org.ros.android.view.RosTextView;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
-import android.util.Log;
+
 import java.io.IOException;
 
 public class RosCameraActivity extends RosActivity {
