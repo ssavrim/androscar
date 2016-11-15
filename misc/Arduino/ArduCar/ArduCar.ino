@@ -55,11 +55,13 @@ void left() {
 }
 void avoidCollision() {
   unsigned int uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
-  int distance = uS / US_ROUNDTRIP_CM;
+  delay(25);
+  unsigned int uS2 = sonar.ping(); // Send ping, get ping time in microseconds (uS).
+  int distance = max(uS / US_ROUNDTRIP_CM, uS2 / US_ROUNDTRIP_CM);
   if (distance != 0 && distance <= MIN_DISTANCE) {
     nomove();
   }
-  delay(50);
+  delay(25);
 }
 void loop() {
   unsigned int uS = 0;
