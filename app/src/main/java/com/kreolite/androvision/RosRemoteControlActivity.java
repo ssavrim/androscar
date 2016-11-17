@@ -1,11 +1,14 @@
 package com.kreolite.androvision;
 
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
 
 import org.ros.android.BitmapFromCompressedImage;
 import org.ros.android.RosActivity;
@@ -36,6 +39,21 @@ public class RosRemoteControlActivity extends RosActivity {
         rosImageView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
         setup();
     }
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            final Toast toast = Toast.makeText(this, "Switching cameras.", Toast.LENGTH_SHORT);
+            carCommand.publish("10");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    toast.show();
+                }
+            });
+        }
+        return true;
+    }
+
     @Override
     protected void init(NodeMainExecutor nodeMainExecutor) {
         try {

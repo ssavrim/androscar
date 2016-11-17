@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
@@ -27,11 +29,14 @@ import java.util.Set;
  */
 public class CarCommandListener extends AbstractNodeMain {
     private Context mContext;
+    private CameraPublisher mCamera;
     private String mTopicName;
+    private int cameraId;
 
-    public CarCommandListener(Context context, String topicName) {
+    public CarCommandListener(Context context, CameraPublisher camera, String topicName) {
         super();
         mContext = context;
+        mCamera = camera;
         mTopicName = topicName;
     }
 
@@ -42,13 +47,25 @@ public class CarCommandListener extends AbstractNodeMain {
 
     @Override
     public void onStart(ConnectedNode connectedNode) {
+        cameraId = 0;
         Subscriber<std_msgs.String> subscriber = connectedNode.newSubscriber(mTopicName, std_msgs.String._TYPE);
         subscriber.addMessageListener(new MessageListener<std_msgs.String>() {
             @Override
             public void onNewMessage(std_msgs.String message) {
                 Log.i(getDefaultNodeName().toString(), "Received command:\"" + message.getData() + "\"");
+                String command = message.getData();
+                if (command.equals("10")) {
+                    // Switch camera
+                    int numberOfCameras = Camera.getNumberOfCameras();
+                    final Toast toast;
+                    if (numberOfCameras > 1) {
+                        cameraId = (cameraId + 1) % numberOfCameras;
+                        mCamera.releaseCamera();
+                        mCamera.setCamera(Camera.open(cameraId));
+                    }
+                }
                 if (usbService != null) {
-                    usbService.write(message.getData().getBytes());
+                    usbService.write(command.getBytes());
                 }
             }
         });

@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <org.ros.android.view.camera.RosCameraPreviewView
+    <com.kreolite.androvision.CameraPublisher
         android:id="@+id/ros_camera_preview_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
