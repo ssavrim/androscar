@@ -12,6 +12,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
 import org.ros.node.AbstractNodeMain;
@@ -20,7 +22,11 @@ import org.ros.node.Node;
 import org.ros.node.NodeMain;
 import org.ros.node.topic.Subscriber;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+
+import static java.lang.Math.abs;
 
 /**
  * A simple {@link Subscriber} {@link NodeMain}.
@@ -32,6 +38,8 @@ public class CarCommandListener extends AbstractNodeMain {
     private CameraPublisher mCamera;
     private String mTopicName;
     private int cameraId;
+    private int lastLinear = 0;
+    private int lastAngular = 0;
 
     public CarCommandListener(Context context, CameraPublisher camera, String topicName) {
         super();
@@ -66,6 +74,48 @@ public class CarCommandListener extends AbstractNodeMain {
                 }
                 if (usbService != null) {
                     usbService.write(command.getBytes());
+                }
+            }
+        });
+        Subscriber<geometry_msgs.Twist> cmdVelSubscriber = connectedNode.newSubscriber("car_command/cmd_vel", geometry_msgs.Twist._TYPE);
+        cmdVelSubscriber.addMessageListener(new MessageListener<geometry_msgs.Twist>() {
+            @Override
+            public void onNewMessage(geometry_msgs.Twist message) {
+                try {
+                    Double linearRatio = message.getLinear().getX();
+                    Double angularRatio = message.getAngular().getZ();
+                    int pin1 = 0;
+                    int pin2 = 0;
+                    int pin3 = 0;
+                    int pin4 = 0;
+                    int linear = 0;
+                    if (linearRatio != 0) {
+                        linear = (int) abs(255 * linearRatio);
+                        if (linearRatio > 0) {
+                            pin1 = pin4 = 0;
+                            pin2 = pin3 = linear >= 150 ? linear : 150;
+                        } else {
+                            pin1 = pin4 = linear >= 150 ? linear : 150;
+                            pin2 = pin3 = 0;
+                        }
+                    }
+
+                    JSONObject jsonObj = new JSONObject();
+                    jsonObj.put("pin1", pin1);
+                    jsonObj.put("pin2", pin2);
+                    jsonObj.put("pin3", pin3);
+                    jsonObj.put("pin4", pin4);
+
+                    if (usbService != null) {
+                        if (lastLinear != linear) {
+                            Log.i(getDefaultNodeName().toString(), jsonObj.toString());
+                            usbService.write(jsonObj.toString().getBytes());
+                            lastLinear = linear;
+                        }
+
+                    }
+                } catch (JSONException e) {
+                    Log.e(getDefaultNodeName().toString(), e.getMessage());
                 }
             }
         });

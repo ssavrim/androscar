@@ -13,6 +13,7 @@ import android.widget.Toast;
 import org.ros.android.BitmapFromCompressedImage;
 import org.ros.android.RosActivity;
 import org.ros.android.view.RosImageView;
+import org.ros.android.view.VirtualJoystickView;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
@@ -21,11 +22,12 @@ import java.io.IOException;
 public class RosRemoteControlActivity extends RosActivity {
     private static final String _TAG = "RosRemoteControl";
     private RosImageView<sensor_msgs.CompressedImage> rosImageView;
+    private VirtualJoystickView rosJoystick;
     private final CarCommandPublisher carCommand;
 
     public RosRemoteControlActivity() {
         super(_TAG, _TAG);
-        carCommand = new CarCommandPublisher();
+        carCommand = new CarCommandPublisher("car_command/cmd_simple");
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +65,9 @@ public class RosRemoteControlActivity extends RosActivity {
             NodeConfiguration nodeConfiguration =
                     NodeConfiguration.newPublic(local_network_address.getHostAddress(), getMasterUri());
             nodeMainExecutor.execute(rosImageView, nodeConfiguration);
+            nodeMainExecutor.execute(rosJoystick, nodeConfiguration);
             nodeMainExecutor.execute(carCommand, nodeConfiguration);
+
         } catch (IOException e) {
             // Socket problem
             Log.e(_TAG, "socket error trying to get networking information from the master uri");
@@ -101,5 +105,7 @@ public class RosRemoteControlActivity extends RosActivity {
                 carCommand.publish("0");
             }
         });
+        rosJoystick = (VirtualJoystickView) findViewById(R.id.virtualJoystick);
+        rosJoystick.setTopicName("car_command/cmd_vel");
     }
 }

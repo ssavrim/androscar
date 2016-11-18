@@ -19,9 +19,9 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:alpha="0.5"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:alpha="0.5">
+        android:layout_alignParentStart="true">
 
         <Button
             android:text="Right"
@@ -30,7 +30,8 @@
             android:id="@+id/btnRight"
             android:textSize="10sp"
             android:layout_below="@+id/btnForward"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:visibility="invisible" />
 
         <Button
             android:text="Reverse"
@@ -39,7 +40,8 @@
             android:id="@+id/btnReverse"
             android:textSize="10sp"
             android:layout_below="@+id/btnStop"
-            android:layout_toEndOf="@+id/btnLeft" />
+            android:layout_toEndOf="@+id/btnLeft"
+            android:visibility="invisible" />
 
         <Button
             android:text="Forward"
@@ -49,7 +51,8 @@
             android:layout_above="@+id/btnLeft"
             android:layout_alignStart="@+id/btnStop"
             android:fontFamily="sans-serif-medium"
-            android:textSize="10sp" />
+            android:textSize="10sp"
+            android:visibility="invisible" />
 
         <Button
             android:text="Left"
@@ -58,8 +61,8 @@
             android:id="@+id/btnLeft"
             android:textSize="10sp"
             android:layout_above="@+id/btnReverse"
-            android:layout_toStartOf="@+id/btnStop" />
-
+            android:layout_toStartOf="@+id/btnStop"
+            android:visibility="invisible" />
         <Button
             android:text="Stop"
             android:layout_width="wrap_content"
@@ -68,7 +71,16 @@
             android:textSize="10sp"
             android:layout_marginTop="47dp"
             android:layout_alignParentTop="true"
-            android:layout_toStartOf="@+id/btnRight" />
+            android:layout_toStartOf="@+id/btnRight"
+            android:visibility="invisible" />
+
+        <org.ros.android.view.VirtualJoystickView
+            android:id="@+id/virtualJoystick"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_marginTop="33dp"
+            android:layout_below="@+id/btnForward"
+            android:layout_alignStart="@+id/btnLeft" />
 
     </RelativeLayout>
 

@@ -31,7 +31,7 @@ public class RosCameraActivity extends RosActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_camera);
         carCamera = (CameraPublisher) findViewById(R.id.ros_camera_preview_view);
-        carCommand = new CarCommandListener(this, carCamera, "command");
+        carCommand = new CarCommandListener(this, carCamera, "car_command/cmd_simple");
     }
 
     @Override
