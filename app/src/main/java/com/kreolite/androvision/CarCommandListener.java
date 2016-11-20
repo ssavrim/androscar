@@ -1,16 +1,7 @@
 package com.kreolite.androvision;
 
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.hardware.Camera;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,13 +9,8 @@ import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
 import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
-import org.ros.node.Node;
 import org.ros.node.NodeMain;
 import org.ros.node.topic.Subscriber;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 
 import static java.lang.Math.abs;
 
