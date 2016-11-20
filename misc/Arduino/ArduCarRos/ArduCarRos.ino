@@ -4,8 +4,7 @@
 #define SERIALBAUDRATE 9600
 #define TRIGGER_PIN  2  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define ECHO_PIN     3  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define MAX_DISTANCE 400 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-#define MIN_DISTANCE 10 // Minimum distance we want to ping to avoid collision.
+#define MAX_DISTANCE 450 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
 //L298N
 //Motor A
@@ -26,22 +25,15 @@ void setup() {
   pinMode(motorPin4, OUTPUT);
 }
 
-void avoidCollision() {
+void publishFrontUltrasound() {
   unsigned int uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
   int distance = uS / US_ROUNDTRIP_CM;
-  if (distance != 0 && distance <= MIN_DISTANCE) {
-    Serial.print(distance);
-    Serial.println(" cm. Max distance reached!");
-    analogWrite(motorPin1, 0);
-    analogWrite(motorPin2, 0);
-    analogWrite(motorPin3, 0);
-    analogWrite(motorPin4, 0);
-  }
+  Serial.print(distance);
   delay(50);
 }
 
 void loop() {
-  avoidCollision();
+  publishFrontUltrasound();
   if (Serial.available() > 0) {
     char serialbuffer[72] = "";
     DynamicJsonBuffer jsonBuffer;

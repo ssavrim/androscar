@@ -14,9 +14,20 @@ import org.ros.node.topic.Publisher;
  *
  * @author ssavrimo@gmail.com
  */
+
 public class CarCommandPublisher extends AbstractNodeMain {
     private String topicName;
     private Publisher<std_msgs.String> publisher;
+
+    public static final String SIMPLE_ACTION_TOPIC = "car_command/cmd_simple";
+    public static final String VELOCITY_ACTION_TOPIC = "car_command/cmd_vel";
+
+    public static final String SWITCH_CAMERA = "switch_camera";
+    public static final String FORWARD = "forward";
+    public static final String REVERSE = "reverse";
+    public static final String LEFT = "left";
+    public static final String RIGHT = "right";
+    public static final String STOP = "stop";
 
     public CarCommandPublisher() {
         topicName = "command";

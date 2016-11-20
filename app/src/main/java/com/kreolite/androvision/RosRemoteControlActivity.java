@@ -1,7 +1,14 @@
 package com.kreolite.androvision;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,6 +25,7 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
 import java.io.IOException;
+import java.util.Set;
 
 public class RosRemoteControlActivity extends RosActivity {
     private static final String _TAG = "RosRemoteControl";
@@ -35,17 +43,15 @@ public class RosRemoteControlActivity extends RosActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_remote_control);
-        rosImageView = (RosImageView<sensor_msgs.CompressedImage>)findViewById(R.id.rosImageView);
-        rosImageView.setTopicName("/camera/image/compressed");
-        rosImageView.setMessageType(sensor_msgs.CompressedImage._TYPE);
-        rosImageView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
+
         setup();
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             final Toast toast = Toast.makeText(this, "Switching cameras.", Toast.LENGTH_SHORT);
-            carCommand.publish("10");
+            carCommand.publish(CarCommandPublisher.SWITCH_CAMERA);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -75,37 +81,46 @@ public class RosRemoteControlActivity extends RosActivity {
 
     }
     private void setup() {
+        // Initialize view of the car camera
+        rosImageView = (RosImageView<sensor_msgs.CompressedImage>)findViewById(R.id.rosImageView);
+        rosImageView.setTopicName("/camera/image/compressed");
+        rosImageView.setMessageType(sensor_msgs.CompressedImage._TYPE);
+        rosImageView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
+
+        // Initialize simple actions to send to the camera
         Button btnUp = (Button)findViewById(R.id.btnForward);
         btnUp.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish("8");
+                carCommand.publish(CarCommandPublisher.FORWARD);
             }
         });
         Button btnDown = (Button)findViewById(R.id.btnReverse);
         btnDown.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish("2");
+                carCommand.publish(CarCommandPublisher.REVERSE);
             }
         });
         Button btnLeft = (Button)findViewById(R.id.btnLeft);
         btnLeft.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish("4");
+                carCommand.publish(CarCommandPublisher.LEFT);
             }
         });
         Button btnRight = (Button)findViewById(R.id.btnRight);
         btnRight.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish("6");
+                carCommand.publish(CarCommandPublisher.RIGHT);
             }
         });
         Button btnStop = (Button)findViewById(R.id.btnStop);
         btnStop.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish("0");
+                carCommand.publish(CarCommandPublisher.STOP);
             }
         });
+
+        // Initialize simple actions to send to the camera
         rosJoystick = (VirtualJoystickView) findViewById(R.id.virtualJoystick);
-        rosJoystick.setTopicName("car_command/cmd_vel");
+        rosJoystick.setTopicName(CarCommandPublisher.VELOCITY_ACTION_TOPIC);
     }
 }
