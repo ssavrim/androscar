@@ -26,9 +26,8 @@ void setup() {
 }
 
 void publishFrontUltrasound() {
-  unsigned int uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
-  int distance = uS / US_ROUNDTRIP_CM;
-  Serial.print(distance);
+  unsigned int distance = sonar.ping_cm(); // Send ping, get ping time in microseconds (uS).
+  Serial.println(distance);
   delay(50);
 }
 
@@ -58,3 +57,4 @@ void loop() {
     }
   }
 }
+
