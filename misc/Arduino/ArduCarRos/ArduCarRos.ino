@@ -4,6 +4,8 @@
 #define SERIALBAUDRATE 9600
 #define TRIGGER_PIN  2  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define ECHO_PIN     3  // Arduino pin tied to echo pin on the ultrasonic sensor.
+//HC-SR04 specification
+#define MIN_DISTANCE 0 // Minimum distance we want to ping for (in centimeters).
 #define MAX_DISTANCE 450 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
 //L298N
@@ -26,8 +28,9 @@ void setup() {
 }
 
 void publishFrontUltrasound() {
-  unsigned int distance = sonar.ping_cm(); // Send ping, get ping time in microseconds (uS).
-  Serial.println(distance);
+  String message = "";
+  unsigned int range = sonar.ping_cm(); // Send ping, get ping time in microseconds (uS).
+  Serial.println(message + MIN_DISTANCE + "," + MAX_DISTANCE + "," + range);
   delay(50);
 }
 

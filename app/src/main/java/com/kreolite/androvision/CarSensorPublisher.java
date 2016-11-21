@@ -2,6 +2,7 @@ package com.kreolite.androvision;
 
 import android.util.Log;
 
+import org.ros.message.Time;
 import org.ros.namespace.GraphName;
 import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
@@ -14,15 +15,16 @@ import org.ros.node.topic.Publisher;
 
 public class CarSensorPublisher extends AbstractNodeMain {
     public static final String FRONT_RANGE_TOPIC = "car_sensor/front_range";
-
     private Publisher<sensor_msgs.Range> rangePublisher;
+    private ConnectedNode mConnectedNode = null;
 
     @Override
     public GraphName getDefaultNodeName() {
-        return GraphName.of("car_sensor/publisher");
+        return GraphName.of("car_sensor/range");
     }
     @Override
     public void onStart(final ConnectedNode connectedNode) {
+        mConnectedNode = connectedNode;
         rangePublisher = connectedNode.newPublisher(FRONT_RANGE_TOPIC, sensor_msgs.Range._TYPE);
     }
 
@@ -30,20 +32,24 @@ public class CarSensorPublisher extends AbstractNodeMain {
     public void onShutdown(Node arg0) {
         rangePublisher = null;
     }
-    public void publishRange(String command) {
 
+    public void publishRange(String message) {
         try {
-            if (rangePublisher != null && !command.isEmpty()) {
-                Log.i("CarSensor", "Range: " + command + " cm");
-                sensor_msgs.Range message = rangePublisher.newMessage();
-                message.getHeader().setFrameId("front_range");
-                message.setRadiationType(sensor_msgs.Range.ULTRASOUND);
-                message.setRange(Float.parseFloat(command));
-                message.setMinRange(0);
-                message.setMaxRange(450);
-                rangePublisher.publish(message);
+            if (rangePublisher != null && !message.isEmpty()) {
+                Log.i("CarSensor", message);
+                String[] messageSplit = message.split(",");
+                Time currentTime = mConnectedNode.getCurrentTime();
+                sensor_msgs.Range range = rangePublisher.newMessage();
+                range.getHeader().setFrameId("front_range");
+                range.getHeader().setStamp(currentTime);
+                range.setRadiationType(sensor_msgs.Range.ULTRASOUND);
+                range.setFieldOfView(0.1f);
+                range.setMinRange(Float.parseFloat(messageSplit[0]));
+                range.setMaxRange(Float.parseFloat(messageSplit[1]));
+                range.setRange(Float.parseFloat(messageSplit[2]));
+                rangePublisher.publish(range);
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             Log.e("CarSensor", "Wrong range: " + e);
         }
     }
