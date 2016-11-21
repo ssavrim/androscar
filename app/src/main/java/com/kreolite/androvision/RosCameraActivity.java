@@ -28,8 +28,9 @@ import java.util.Set;
 public class RosCameraActivity extends RosActivity {
     private static final String _TAG = "RosCamera";
     private int cameraId;
-    private CarCommandListener carCommand;
-    private CameraPublisher carCamera;
+    public CarCommandListener carCommand;
+    public CameraPublisher carCamera;
+    public CarSensorPublisher carSensor;
     private UsbHandler mHandler;
     private UsbService usbService;
 
@@ -94,6 +95,7 @@ public class RosCameraActivity extends RosActivity {
                     NodeConfiguration.newPublic(local_network_address.getHostAddress(), getMasterUri());
             nodeMainExecutor.execute(carCamera, nodeConfiguration);
             nodeMainExecutor.execute(carCommand, nodeConfiguration);
+            nodeMainExecutor.execute(carSensor, nodeConfiguration);
         } catch (IOException e) {
             // Socket problem
             Log.e(_TAG, "socket error trying to get networking information from the master uri");
@@ -115,7 +117,7 @@ public class RosCameraActivity extends RosActivity {
             switch (msg.what) {
                 case UsbService.MESSAGE_FROM_SERIAL_PORT:
                     String data = (String) msg.obj;
-                    Log.i(_TAG, "Received data from serial: " + data);
+                    mActivity.get().carSensor.publishRange(data);
                     break;
                 case UsbService.CTS_CHANGE:
                     Toast.makeText(mActivity.get(), "CTS_CHANGE", Toast.LENGTH_LONG).show();
@@ -159,6 +161,7 @@ public class RosCameraActivity extends RosActivity {
             usbService = ((UsbService.UsbBinder) arg1).getService();
             usbService.setHandler(mHandler);
             carCommand = new CarCommandListener(usbService, carCamera);
+            carSensor = new CarSensorPublisher();
         }
 
         @Override

@@ -26,7 +26,7 @@ public class RosRemoteControlActivity extends RosActivity {
 
     public RosRemoteControlActivity() {
         super(_TAG, _TAG);
-        carCommand = new CarCommandPublisher("car_command/cmd_simple");
+        carCommand = new CarCommandPublisher();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
