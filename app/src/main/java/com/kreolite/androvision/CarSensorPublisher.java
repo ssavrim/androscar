@@ -20,7 +20,7 @@ public class CarSensorPublisher extends AbstractNodeMain {
 
     @Override
     public GraphName getDefaultNodeName() {
-        return GraphName.of("car_sensor/range");
+        return GraphName.of("car_sensor/publisher");
     }
     @Override
     public void onStart(final ConnectedNode connectedNode) {

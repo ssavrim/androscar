@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import org.ros.android.BitmapFromCompressedImage;
 import org.ros.android.RosActivity;
-import org.ros.android.view.DistanceView;
 import org.ros.android.view.RosImageView;
 import org.ros.android.view.VirtualJoystickView;
 import org.ros.node.NodeConfiguration;
