@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.hardware.Camera;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -33,6 +34,7 @@ public class RosCameraActivity extends RosActivity {
     public CarSensorPublisher carSensor;
     private UsbHandler mHandler;
     private UsbService usbService;
+    private SensorManager mSensorManager;
 
     public RosCameraActivity() {
         super(_TAG, _TAG);
@@ -46,6 +48,7 @@ public class RosCameraActivity extends RosActivity {
         setContentView(R.layout.activity_ros_camera);
         carCamera = (CameraPublisher) findViewById(R.id.ros_camera_preview_view);
         mHandler = new UsbHandler(this);
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
     }
     @Override
     public void onResume() {
@@ -161,7 +164,7 @@ public class RosCameraActivity extends RosActivity {
             usbService = ((UsbService.UsbBinder) arg1).getService();
             usbService.setHandler(mHandler);
             carCommand = new CarCommandListener(usbService, carCamera);
-            carSensor = new CarSensorPublisher();
+            carSensor = new CarSensorPublisher(mSensorManager);
         }
 
         @Override
