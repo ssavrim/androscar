@@ -10,17 +10,21 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import org.ros.android.BitmapFromCompressedImage;
+import org.ros.android.MessageCallable;
 import org.ros.android.RosActivity;
 import org.ros.android.view.RosImageView;
+import org.ros.android.view.RosTextView;
 import org.ros.android.view.VirtualJoystickView;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
 import java.io.IOException;
 
+
 public class RosRemoteControlActivity extends RosActivity {
     private static final String _TAG = "RosRemoteControl";
     private RosImageView<sensor_msgs.CompressedImage> rosImageView;
+    private RosTextView<sensor_msgs.Range> rosDistanceView;
     private VirtualJoystickView rosJoystick;
     private final CarCommandPublisher carCommand;
 
@@ -62,6 +66,7 @@ public class RosRemoteControlActivity extends RosActivity {
             NodeConfiguration nodeConfiguration =
                     NodeConfiguration.newPublic(local_network_address.getHostAddress(), getMasterUri());
             nodeMainExecutor.execute(rosImageView, nodeConfiguration);
+            nodeMainExecutor.execute(rosDistanceView, nodeConfiguration);
             nodeMainExecutor.execute(rosJoystick, nodeConfiguration);
             nodeMainExecutor.execute(carCommand, nodeConfiguration);
         } catch (IOException e) {
@@ -76,6 +81,17 @@ public class RosRemoteControlActivity extends RosActivity {
         rosImageView.setTopicName("/camera/image/compressed");
         rosImageView.setMessageType(sensor_msgs.CompressedImage._TYPE);
         rosImageView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
+
+        // Initialize view of the ultrasonic value
+        rosDistanceView = (RosTextView<sensor_msgs.Range>) findViewById(R.id.distanceView);
+        rosDistanceView.setTopicName(CarSensorPublisher.FRONT_RANGE_TOPIC);
+        rosDistanceView.setMessageType(sensor_msgs.Range._TYPE);
+        rosDistanceView.setMessageToStringCallable(new MessageCallable<String, sensor_msgs.Range>() {
+            @Override
+            public String call(sensor_msgs.Range message) {
+                return Float.toString(message.getRange()) + " cm";
+            }
+        });
 
         // Initialize simple actions to send to the camera
         Button btnUp = (Button)findViewById(R.id.btnForward);

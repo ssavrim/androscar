@@ -67,11 +67,11 @@
 
         <org.ros.android.view.VirtualJoystickView
             android:id="@+id/virtualJoystick"
-            android:layout_height="200dp"
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_alignBottom="@+id/btnReverse"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="14dp" />
+            android:layout_marginEnd="14dp"
+            android:layout_height="250dp" />
 
         <Button
             android:text="Forward"
@@ -83,6 +83,15 @@
             android:visibility="visible"
             android:layout_above="@+id/btnRight"
             android:layout_toEndOf="@+id/btnLeft" />
+
+        <org.ros.android.view.RosTextView
+            android:text="---"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/distanceView"
+            android:textSize="20sp"
+            android:layout_alignBottom="@+id/virtualJoystick"
+            android:layout_centerHorizontal="true" />
 
     </RelativeLayout>
 
