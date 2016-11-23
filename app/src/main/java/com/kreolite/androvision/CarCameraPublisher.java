@@ -10,16 +10,16 @@ import org.ros.namespace.GraphName;
  * Created by ssavrim on 11/17/2016.
  */
 
-public class CameraPublisher extends RosCameraPreviewView {
-    public CameraPublisher(Context context) {
+public class CarCameraPublisher extends RosCameraPreviewView {
+    public CarCameraPublisher(Context context) {
         super(context);
     }
 
-    public CameraPublisher(Context context, AttributeSet attrs) {
+    public CarCameraPublisher(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public CameraPublisher(Context context, AttributeSet attrs, int defStyle) {
+    public CarCameraPublisher(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
     public GraphName getDefaultNodeName() {

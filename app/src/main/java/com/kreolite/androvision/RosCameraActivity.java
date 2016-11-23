@@ -33,7 +33,7 @@ public class RosCameraActivity extends RosActivity {
     private static final String _TAG = "RosCamera";
     private int cameraId;
     public CarCommandListener carCommand;
-    public CameraPublisher carCamera;
+    public CarCameraPublisher carCamera;
     public CarSensorPublisher carSensor;
     private UsbHandler mHandler;
     private UsbService usbService;
@@ -49,7 +49,7 @@ public class RosCameraActivity extends RosActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_camera);
-        carCamera = (CameraPublisher) findViewById(R.id.ros_camera_preview_view);
+        carCamera = (CarCameraPublisher) findViewById(R.id.ros_camera_preview_view);
         mHandler = new UsbHandler(this);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
     }

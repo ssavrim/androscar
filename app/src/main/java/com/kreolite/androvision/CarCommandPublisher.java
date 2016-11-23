@@ -40,7 +40,7 @@ public class CarCommandPublisher extends AbstractNodeMain {
 
     @Override
     public void onShutdown(Node arg0) {
-        publisher = null;
+        publisher.shutdown();
     }
 
     public void publish(String command) {

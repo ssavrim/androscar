@@ -59,10 +59,11 @@ public class CarSensorPublisher extends AbstractNodeMain {
     }
     @Override
     public void onShutdown(Node arg0) {
-        rangePublisher = null;
         if (mSensorManager != null) {
             mSensorManager.unregisterListener(mSensorListener);
         }
+        orientationPublisher.shutdown();
+        rangePublisher.shutdown();
     }
 
     public void publishRange(String message) {

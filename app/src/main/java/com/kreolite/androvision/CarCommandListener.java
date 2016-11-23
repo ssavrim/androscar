@@ -21,12 +21,12 @@ import static java.lang.Math.abs;
  */
 public class CarCommandListener extends AbstractNodeMain {
     private UsbService mUsbService;
-    private CameraPublisher mCamera;
+    private CarCameraPublisher mCamera;
     private int cameraId;
     private int lastLinear = -1;
     private int lastAngular = -1;
 
-    public CarCommandListener(UsbService usbService, CameraPublisher camera) {
+    public CarCommandListener(UsbService usbService, CarCameraPublisher camera) {
         super();
         mUsbService = usbService;
         mCamera = camera;
