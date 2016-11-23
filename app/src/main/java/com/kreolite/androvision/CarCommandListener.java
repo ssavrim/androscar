@@ -23,8 +23,7 @@ public class CarCommandListener extends AbstractNodeMain {
     private UsbService mUsbService;
     private CarCameraPublisher mCamera;
     private int cameraId;
-    private int lastLinear = -1;
-    private int lastAngular = -1;
+    private String lastPinValues = "";
 
     public CarCommandListener(UsbService usbService, CarCameraPublisher camera) {
         super();
@@ -61,6 +60,26 @@ public class CarCommandListener extends AbstractNodeMain {
                         jsonObj.put("pin2", 0);
                         jsonObj.put("pin3", 0);
                         jsonObj.put("pin4", 0);
+                    } else if (command.equals(CarCommandPublisher.FORWARD)) {
+                        jsonObj.put("pin1", 0);
+                        jsonObj.put("pin2", 255);
+                        jsonObj.put("pin3", 255);
+                        jsonObj.put("pin4", 0);
+                    } else if (command.equals(CarCommandPublisher.REVERSE)) {
+                        jsonObj.put("pin1", 255);
+                        jsonObj.put("pin2", 0);
+                        jsonObj.put("pin3", 0);
+                        jsonObj.put("pin4", 255);
+                    } else if (command.equals(CarCommandPublisher.LEFT)) {
+                        jsonObj.put("pin1", 0);
+                        jsonObj.put("pin2", 150);
+                        jsonObj.put("pin3", 0);
+                        jsonObj.put("pin4", 150);
+                    } else if (command.equals(CarCommandPublisher.RIGHT)) {
+                        jsonObj.put("pin1", 150);
+                        jsonObj.put("pin2", 0);
+                        jsonObj.put("pin3", 150);
+                        jsonObj.put("pin4", 0);
                     }
                     if (mUsbService != null && jsonObj != null) {
                         mUsbService.write(jsonObj.toString().getBytes());
@@ -85,9 +104,7 @@ public class CarCommandListener extends AbstractNodeMain {
                     int currentLinear = 0;
                     int currentAngular = 0;
                     if (linearRatio != 0) {
-                        //int linearValue = (int) abs(255 * linearRatio);
-                        //currentLinear = linearValue >= 150 ? linearValue : 150;
-                        currentLinear = 255;
+                        currentLinear = 255; // Max speed
                         currentAngular = currentLinear - (int) abs(currentLinear * angularRatio);
                         currentAngular = currentAngular >= 100 ? currentAngular : 100;
                         if (linearRatio > 0) {
@@ -114,15 +131,15 @@ public class CarCommandListener extends AbstractNodeMain {
                     jsonObj.put("pin2", pin2);
                     jsonObj.put("pin3", pin3);
                     jsonObj.put("pin4", pin4);
+                    String currentPinValues = pin1 + "," + pin2 + "," + pin3 + "," + pin4;
 
-                    if (mUsbService != null) {
-                        if (lastAngular != currentAngular) {
-                            Log.i(getDefaultNodeName().toString(), jsonObj.toString());
+                    if (!lastPinValues.equals(currentPinValues)) {
+                        Log.i(getDefaultNodeName().toString(), jsonObj.toString());
+                        if (mUsbService != null) {
                             mUsbService.write(jsonObj.toString().getBytes());
                         }
+                        lastPinValues = currentPinValues;
                     }
-                    lastLinear = currentLinear;
-                    lastAngular = currentAngular;
                 } catch (JSONException e) {
                     Log.e(getDefaultNodeName().toString(), e.getMessage());
                 }

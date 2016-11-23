@@ -69,7 +69,7 @@ public class CarSensorPublisher extends AbstractNodeMain {
     public void publishRange(String message) {
         try {
             if (rangePublisher != null && !message.isEmpty()) {
-                Log.d("CarSensor", "Publish front range: " + message);
+                //Log.d("CarSensor", "Publish front range: " + message);
                 String[] messageSplit = message.split(",");
                 Time currentTime = mConnectedNode.getCurrentTime();
                 sensor_msgs.Range range = rangePublisher.newMessage();
@@ -95,7 +95,7 @@ public class CarSensorPublisher extends AbstractNodeMain {
         }
         public void onSensorChanged(SensorEvent event) {
             String sensorName = event.sensor.getName();
-            Log.d("CarSensor", sensorName + ": X: " + event.values[0] + "; Y: " + event.values[1] + "; Z: " + event.values[2] + ";");
+            //Log.d("CarSensor", sensorName + ": X: " + event.values[0] + "; Y: " + event.values[1] + "; Z: " + event.values[2] + ";");
             if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
                 Time currentTime = mConnectedNode.getCurrentTime();
                 float[] quaternion = new float[4];
