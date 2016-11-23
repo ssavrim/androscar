@@ -3,15 +3,18 @@ package com.kreolite.androvision;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
-public class menu extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     public static final String TAG = "MainActivity";
 
     /**
@@ -23,18 +26,23 @@ public class menu extends AppCompatActivity implements ActivityCompat.OnRequestP
      * Root of the layout of this Activity.
      */
     private View mLayout;
+    private TextView mIpAddressView;
+    private String mDeviceIpAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu);
+        setContentView(R.layout.activity_main);
         mLayout = findViewById(R.id.main_layout);
+        mIpAddressView = (TextView) findViewById(R.id.device_ip_address);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             // Camera permission has not been granted.
             requestCameraPermission();
-
         }
+        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        mDeviceIpAddress = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
+        mIpAddressView.setText(mDeviceIpAddress);
     }
     /**
      * Requests the Camera permission.
@@ -56,7 +64,7 @@ public class menu extends AppCompatActivity implements ActivityCompat.OnRequestP
                     .setAction(R.string.allow, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            ActivityCompat.requestPermissions(menu.this,
+                            ActivityCompat.requestPermissions(MainActivity.this,
                                     new String[]{Manifest.permission.CAMERA},
                                     REQUEST_CAMERA);
                         }
@@ -86,6 +94,7 @@ public class menu extends AppCompatActivity implements ActivityCompat.OnRequestP
     }
     public void carView(View view) {
         Intent intent = new Intent(this, RosCameraActivity.class);
+        intent.putExtra("MASTER_URI", mDeviceIpAddress);
         startActivity(intent);
     }
     /**

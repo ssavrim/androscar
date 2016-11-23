@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -24,7 +25,9 @@ import org.ros.node.NodeMainExecutor;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class RosCameraActivity extends RosActivity {
     private static final String _TAG = "RosCamera";
@@ -50,6 +53,30 @@ public class RosCameraActivity extends RosActivity {
         mHandler = new UsbHandler(this);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
     }
+    public void startMasterChooser() {
+        AsyncTask uri = new AsyncTask<Boolean, Void, URI>() {
+            protected URI doInBackground(Boolean[] params) {
+                RosCameraActivity.this.nodeMainExecutorService.startMaster(params[0]);
+                return RosCameraActivity.this.nodeMainExecutorService.getMasterUri();
+            }
+        };
+        uri.execute(new Boolean[]{Boolean.valueOf(false)});
+
+        try {
+            uri.get();
+        } catch (InterruptedException var7) {
+            var7.printStackTrace();
+        } catch (ExecutionException var8) {
+            var8.printStackTrace();
+        }
+        (new AsyncTask<Void, Void, Void>() {
+            protected Void doInBackground(Void... params) {
+                RosCameraActivity.this.init(RosCameraActivity.this.nodeMainExecutorService);
+                return null;
+            }
+        }).execute(new Void[0]);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
