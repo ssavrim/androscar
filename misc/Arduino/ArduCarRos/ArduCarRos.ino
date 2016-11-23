@@ -2,10 +2,10 @@
 #include <ArduinoJson.h>
 
 #define SERIALBAUDRATE 9600
+//HC-SR04 specification
 #define TRIGGER_PIN  2  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define ECHO_PIN     3  // Arduino pin tied to echo pin on the ultrasonic sensor.
-//HC-SR04 specification
-#define MIN_DISTANCE 0 // Minimum distance we want to ping for (in centimeters).
+#define MIN_DISTANCE 10 // Minimum distance we want to ping for (in centimeters).
 #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
 //L298N
@@ -19,7 +19,6 @@ const int motorPin4  = 12;
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 void setup() {
-  // put your setup code here, to run once:
   pinMode(motorPin1, OUTPUT);
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
@@ -28,11 +27,13 @@ void setup() {
 }
 
 void publishFrontUltrasound() {
+  unsigned int range = sonar.ping_cm();
+  if (range == 0) {
+    return;
+  }
   String message = "";
-  unsigned int range = sonar.ping_cm(); // Send ping, get ping time in microseconds (uS).
   Serial.println(message + MIN_DISTANCE + "," + MAX_DISTANCE + "," + range);
-  // Stop if under 8cm
-  if (range != 0 && range < 10) {
+  if (range < MIN_DISTANCE) {
       Serial.flush();
       analogWrite(motorPin1, 200);
       analogWrite(motorPin2, 0);
@@ -69,7 +70,6 @@ void loop() {
       analogWrite(motorPin2, root["pin2"]);
       analogWrite(motorPin3, root["pin3"]);
       analogWrite(motorPin4, root["pin4"]);
-      delay(50);     
     }
   }
 }
