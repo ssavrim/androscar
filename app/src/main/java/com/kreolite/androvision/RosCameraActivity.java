@@ -38,6 +38,7 @@ public class RosCameraActivity extends RosActivity {
     private UsbHandler mHandler;
     private UsbService usbService;
     private SensorManager mSensorManager;
+    private NsdHelper mNsdHelper;
 
     public RosCameraActivity() {
         super(_TAG, _TAG);
@@ -52,6 +53,8 @@ public class RosCameraActivity extends RosActivity {
         carCamera = (CarCameraPublisher) findViewById(R.id.ros_camera_preview_view);
         mHandler = new UsbHandler(this);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mNsdHelper = new NsdHelper(this);
+        mNsdHelper.initializeNsd();
     }
     public void startMasterChooser() {
         AsyncTask uri = new AsyncTask<Boolean, Void, URI>() {
@@ -117,12 +120,15 @@ public class RosCameraActivity extends RosActivity {
         cameraId = 0;
 
         carCamera.setCamera(Camera.open(cameraId));
+        URI masterUri = getMasterUri();
+        mNsdHelper.registerService(masterUri.getPort());
+        //carCamera.setCamera(Camera.open(cameraId));
         try {
-            java.net.Socket socket = new java.net.Socket(getMasterUri().getHost(), getMasterUri().getPort());
-            java.net.InetAddress local_network_address = socket.getLocalAddress();
+            Socket socket = new Socket(masterUri.getHost(), masterUri.getPort());
+            InetAddress local_network_address = socket.getLocalAddress();
             socket.close();
             NodeConfiguration nodeConfiguration =
-                    NodeConfiguration.newPublic(local_network_address.getHostAddress(), getMasterUri());
+                    NodeConfiguration.newPublic(local_network_address.getHostAddress(), masterUri);
             nodeMainExecutor.execute(carCamera, nodeConfiguration);
             nodeMainExecutor.execute(carCommand, nodeConfiguration);
             nodeMainExecutor.execute(carSensor, nodeConfiguration);
