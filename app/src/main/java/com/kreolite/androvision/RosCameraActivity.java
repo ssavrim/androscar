@@ -26,6 +26,8 @@ import org.ros.node.NodeMainExecutor;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URI;
+import java.net.Socket;
+import java.net.InetAddress;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -57,23 +59,9 @@ public class RosCameraActivity extends RosActivity {
         mNsdHelper.initializeNsd();
     }
     public void startMasterChooser() {
-        AsyncTask uri = new AsyncTask<Boolean, Void, URI>() {
-            protected URI doInBackground(Boolean[] params) {
-                RosCameraActivity.this.nodeMainExecutorService.startMaster(params[0]);
-                return RosCameraActivity.this.nodeMainExecutorService.getMasterUri();
-            }
-        };
-        uri.execute(new Boolean[]{Boolean.valueOf(false)});
-
-        try {
-            uri.get();
-        } catch (InterruptedException var7) {
-            var7.printStackTrace();
-        } catch (ExecutionException var8) {
-            var8.printStackTrace();
-        }
         (new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... params) {
+                RosCameraActivity.this.nodeMainExecutorService.startMaster(false);
                 RosCameraActivity.this.init(RosCameraActivity.this.nodeMainExecutorService);
                 return null;
             }
