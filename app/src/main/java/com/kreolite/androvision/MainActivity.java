@@ -51,9 +51,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             String content = (new RandomAccessFile("/data/androvision_default_mode.txt", "r")).readLine();
             Log.d("menu", String.format("onCreate: %s",content));
             switch (content){
-                case "objectTracker":
-                    objectTracker(null);
-                    break;
                 case "remoteControl":
                     remoteControl(null);
                     break;
@@ -115,11 +112,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if (mNsdHelper != null) {
             mNsdHelper.discoverServices();
         }
-    }
-
-    public void objectTracker(View view) {
-        Intent intent = new Intent(this, ObjectTracker.class);
-        startActivity(intent);
     }
 
     public void remoteControl(View view) {

@@ -24,13 +24,10 @@
             android:text="NA"/>
 
     </LinearLayout>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Object Tracker"
-        android:onClick="objectTracker" />
+
     <Button
         android:text="Remote Control"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="remoteControl"

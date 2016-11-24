@@ -25,11 +25,10 @@ import org.ros.node.NodeMainExecutor;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.URI;
-import java.net.Socket;
 import java.net.InetAddress;
+import java.net.Socket;
+import java.net.URI;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 public class RosCameraActivity extends RosActivity {
     private static final String _TAG = "RosCamera";

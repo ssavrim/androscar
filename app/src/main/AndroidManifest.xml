@@ -46,17 +46,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ObjectTracker"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/settings"
-            android:screenOrientation="landscape">
-            <intent-filter>
-                <category android:name="android.intent.category.PREFERENCE" />
-            </intent-filter>
-        </activity>
 
         <service
             android:name=".UsbService"
