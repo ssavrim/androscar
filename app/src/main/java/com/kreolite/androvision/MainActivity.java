@@ -16,9 +16,6 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     public static final String TAG = "MainActivity";
@@ -54,8 +51,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             String content = (new RandomAccessFile("/data/androvision_default_mode.txt", "r")).readLine();
             Log.d("menu", String.format("onCreate: %s",content));
             switch (content){
-                case "camera":
-                    openCamera(null);
+                case "objectTracker":
+                    objectTracker(null);
                     break;
                 case "remoteControl":
                     remoteControl(null);
@@ -120,18 +117,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-    public void openCamera(View view) {
-        Intent intent = new Intent(this, camera.class);
-        startActivity(intent);
-    }
-
-    public void carTracker(View view) {
-        Intent intent = new Intent(this, carTracker.class);
+    public void objectTracker(View view) {
+        Intent intent = new Intent(this, ObjectTracker.class);
         startActivity(intent);
     }
 
     public void remoteControl(View view) {
-        //Intent intent = new Intent(this, BluetoothRemoteControl.class);
         Intent intent = new Intent(this, RosRemoteControlActivity.class);
         startActivity(intent);
     }

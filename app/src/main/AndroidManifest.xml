@@ -47,10 +47,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".camera"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".carTracker"
+            android:name=".ObjectTracker"
             android:screenOrientation="landscape" />
         <activity
             android:name=".SettingsActivity"
@@ -65,8 +62,6 @@
             android:name=".UsbService"
             android:enabled="true" />
 
-        <activity android:name=".BluetoothRemoteControl" />
-        <activity android:name=".ListenerActivity" />
         <!-- To set up the connection to the master -->
         <activity android:name="org.ros.android.MasterChooser" />
 

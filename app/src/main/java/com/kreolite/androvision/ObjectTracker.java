@@ -60,9 +60,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class carTracker extends AppCompatActivity implements CvCameraViewListener2 {
+public class ObjectTracker extends AppCompatActivity implements CvCameraViewListener2 {
 
-    private static final String _TAG = "carTrackerActivity";
+    private static final String _TAG = "ObjectTracker";
 
     static final double MIN_CONTOUR_AREA = 100;
 
@@ -179,9 +179,9 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
      * This handler will be passed to UsbService. Data received from serial port is displayed through this handler
      */
     private static class MyHandler extends Handler {
-        private final WeakReference<carTracker> mActivity;
+        private final WeakReference<ObjectTracker> mActivity;
 
-        public MyHandler(carTracker activity) {
+        public MyHandler(ObjectTracker activity) {
             mActivity = new WeakReference<>(activity);
         }
 
@@ -231,7 +231,7 @@ public class carTracker extends AppCompatActivity implements CvCameraViewListene
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        setContentView(R.layout.activity_car);
+        setContentView(R.layout.activity_object_tracker);
 
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
         _sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
