@@ -20,6 +20,8 @@ import static java.lang.Math.abs;
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class CarCommandListener extends AbstractNodeMain {
+
+    private static final String TAG = "CarCommandListener";
     private UsbService mUsbService;
     private CarCameraPublisher mCamera;
     private int cameraId;
@@ -38,7 +40,7 @@ public class CarCommandListener extends AbstractNodeMain {
 
     @Override
     public void onStart(ConnectedNode connectedNode) {
-        cameraId = 0;
+        cameraId = -1;
         Subscriber<std_msgs.String> subscriber = connectedNode.newSubscriber(
                 CarCommandPublisher.SIMPLE_ACTION_TOPIC, std_msgs.String._TYPE);
         subscriber.addMessageListener(new MessageListener<std_msgs.String>() {
@@ -48,12 +50,15 @@ public class CarCommandListener extends AbstractNodeMain {
                     String command = message.getData();
                     JSONObject jsonObj = new JSONObject();
                     if (command.equals(CarCommandPublisher.SWITCH_CAMERA)) {
-                        // Switch camera
+                        // Switch camera or disable it
                         int numberOfCameras = Camera.getNumberOfCameras();
                         if (numberOfCameras > 1) {
-                            cameraId = (cameraId + 1) % numberOfCameras;
+                            cameraId = (cameraId + 1) % (numberOfCameras + 1);
                             mCamera.releaseCamera();
-                            mCamera.setCamera(Camera.open(cameraId));
+                            if (cameraId != numberOfCameras) {
+                                mCamera.setCamera(Camera.open(cameraId));
+                                Log.d(TAG, "setCamera getPreviewSize: " + mCamera.getPreviewSize().height + "x" + mCamera.getPreviewSize().width);
+                            }
                         }
                     } else if(command.equals(CarCommandPublisher.STOP)) {
                         jsonObj.put("pin1", 0);

@@ -5,6 +5,9 @@
 
     <com.kreolite.androvision.CarCameraPublisher
         android:id="@+id/ros_camera_preview_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="640dp"
+        android:layout_height="480dp"
+        android:maxWidth="640dp"
+        android:maxHeight="480dp" />
+    />
 </LinearLayout>

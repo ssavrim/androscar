@@ -1,5 +1,6 @@
 package com.kreolite.androvision;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -19,10 +20,14 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
 
 
 public class RosRemoteControlActivity extends RosActivity {
     private static final String _TAG = "RosRemoteControl";
+    public static final String MASTER_URI_EXTRA = "MASTER_URI";
     private RosImageView<sensor_msgs.CompressedImage> rosImageView;
     private RosTextView<sensor_msgs.Range> rosDistanceView;
     private VirtualJoystickView rosJoystick;
@@ -40,6 +45,28 @@ public class RosRemoteControlActivity extends RosActivity {
         setContentView(R.layout.activity_ros_remote_control);
 
         setup();
+    }
+    public void startMasterChooser() {
+        URI masterUri = null;
+        Bundle bundle = getIntent().getBundleExtra(MASTER_URI_EXTRA);
+        if (bundle != null) {
+            if (bundle.getString(MASTER_URI_EXTRA) != null){
+                try {
+                    masterUri = new URI(bundle.getString(MASTER_URI_EXTRA));
+                    nodeMainExecutorService.setMasterUri(masterUri);
+                } catch (URISyntaxException e) { }
+            }
+        }
+        if (masterUri == null ){
+            super.startMasterChooser();
+        } else {
+            (new AsyncTask<Void, Void, Void>() {
+                protected Void doInBackground(Void... params) {
+                    RosRemoteControlActivity.this.init(RosRemoteControlActivity.this.nodeMainExecutorService);
+                    return null;
+                }
+            }).execute(new Void[0]);
+        }
     }
 
     @Override
