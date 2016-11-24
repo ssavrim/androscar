@@ -14,6 +14,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     public static final String TAG = "MainActivity";
 
@@ -43,6 +46,23 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         mDeviceIpAddress = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
         mIpAddressView.setText(mDeviceIpAddress);
+        try {
+            String content = (new RandomAccessFile("/data/androvision_default_mode.txt", "r")).readLine();
+            Log.d("menu", String.format("onCreate: %s",content));
+            switch (content){
+                case "camera":
+                    openCamera(null);
+                    break;
+                case "remoteControl":
+                    remoteControl(null);
+                    break;
+                case "carView":
+                    carView(null);
+                    break;
+            }
+        } catch (IOException e) {
+                // ignore
+        }
     }
     /**
      * Requests the Camera permission.
