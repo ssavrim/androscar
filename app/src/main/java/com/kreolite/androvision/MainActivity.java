@@ -14,6 +14,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     public static final String TAG = "MainActivity";
 
@@ -21,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      * Id to identify a camera permission request.
      */
     private static final int REQUEST_CAMERA = 0;
+    private NsdHelper mNsdHelper;
 
     /**
      * Root of the layout of this Activity.
@@ -43,6 +50,26 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         mDeviceIpAddress = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
         mIpAddressView.setText(mDeviceIpAddress);
+        try {
+            String content = (new RandomAccessFile("/data/androvision_default_mode.txt", "r")).readLine();
+            Log.d("menu", String.format("onCreate: %s",content));
+            switch (content){
+                case "camera":
+                    openCamera(null);
+                    break;
+                case "remoteControl":
+                    remoteControl(null);
+                    break;
+                case "carView":
+                    carView(null);
+                    break;
+            }
+        } catch (IOException e) {
+                // ignore
+        }
+        mNsdHelper = new NsdHelper(this);
+        mNsdHelper.initializeNsd();
+
     }
     /**
      * Requests the Camera permission.
@@ -74,6 +101,22 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
             // Camera permission has not been granted yet. Request it directly.
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
+        }
+    }
+    @Override
+    protected void onPause() {
+
+        if (mNsdHelper != null) {
+            mNsdHelper.stopDiscovery();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mNsdHelper != null) {
+            mNsdHelper.discoverServices();
         }
     }
 
