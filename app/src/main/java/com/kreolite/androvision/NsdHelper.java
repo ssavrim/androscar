@@ -17,13 +17,18 @@
 package com.kreolite.androvision;
 
 import android.content.Context;
-import android.net.nsd.NsdManager;
+import android.content.Intent;
 import android.net.nsd.NsdServiceInfo;
+import android.net.nsd.NsdManager;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class NsdHelper {
 
+    public static final String FOUND_INTENT = "ROSServiceFound";
     Context mContext;
 
     NsdManager mNsdManager;
@@ -36,7 +41,7 @@ public class NsdHelper {
     public static final String TAG = "NsdHelper";
     public String mServiceName = "AndroVision";
 
-    NsdServiceInfo mService;
+    ArrayList<NsdServiceInfo> mServices;
 
     public NsdHelper(Context context) {
         mContext = context;
@@ -75,8 +80,11 @@ public class NsdHelper {
             @Override
             public void onServiceLost(NsdServiceInfo service) {
                 Log.e(TAG, "service lost" + service);
-                if (mService == service) {
-                    mService = null;
+                for (Iterator<NsdServiceInfo> iterator = mServices.iterator(); iterator.hasNext();) {
+                    NsdServiceInfo oneItem = iterator.next();
+                    if (oneItem == service) {
+                        iterator.remove();
+                    }
                 }
             }
 
@@ -115,7 +123,8 @@ public class NsdHelper {
                     Log.d(TAG, "Same IP.");
                     return;
                 }
-                mService = serviceInfo;
+                mServices.add(serviceInfo);
+                mContext.sendBroadcast(new Intent(FOUND_INTENT));
             }
         };
     }
@@ -155,6 +164,7 @@ public class NsdHelper {
     }
 
     public void discoverServices() {
+        mServices = new ArrayList<NsdServiceInfo>();
         mNsdManager.discoverServices(
                 SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
     }
@@ -163,8 +173,8 @@ public class NsdHelper {
         mNsdManager.stopServiceDiscovery(mDiscoveryListener);
     }
 
-    public NsdServiceInfo getChosenServiceInfo() {
-        return mService;
+    public ArrayList<NsdServiceInfo> getServiceInfos() {
+        return mServices;
     }
 
     public void tearDown() {

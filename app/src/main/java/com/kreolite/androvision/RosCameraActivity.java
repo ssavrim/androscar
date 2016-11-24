@@ -32,7 +32,7 @@ import java.util.Set;
 
 public class RosCameraActivity extends RosActivity {
     private static final String _TAG = "RosCamera";
-    private int cameraId;
+    private int cameraId=0;
     public CarCommandListener carCommand;
     public CarCameraPublisher carCamera;
     public CarSensorPublisher carSensor;
@@ -104,26 +104,12 @@ public class RosCameraActivity extends RosActivity {
 
     @Override
     protected void init(NodeMainExecutor nodeMainExecutor) {
-        cameraId = 0;
-
-        carCamera.setCamera(Camera.open(cameraId));
         URI masterUri = getMasterUri();
         mNsdHelper.registerService(masterUri.getPort());
-        //carCamera.setCamera(Camera.open(cameraId));
-        try {
-            Socket socket = new Socket(masterUri.getHost(), masterUri.getPort());
-            InetAddress local_network_address = socket.getLocalAddress();
-            socket.close();
-            NodeConfiguration nodeConfiguration =
-                    NodeConfiguration.newPublic(local_network_address.getHostAddress(), masterUri);
-            nodeMainExecutor.execute(carCamera, nodeConfiguration);
-            nodeMainExecutor.execute(carCommand, nodeConfiguration);
-            nodeMainExecutor.execute(carSensor, nodeConfiguration);
-        } catch (IOException e) {
-            // Socket problem
-            Log.e(_TAG, "socket error trying to get networking information from the master uri");
-        }
-
+        NodeConfiguration nodeConfiguration =  NodeConfiguration.newPublic(masterUri.getHost(), masterUri);
+        nodeMainExecutor.execute(carCamera, nodeConfiguration);
+        nodeMainExecutor.execute(carCommand, nodeConfiguration);
+        nodeMainExecutor.execute(carSensor, nodeConfiguration);
     }
     /*
      * This handler will be passed to UsbService. Data received from serial port is displayed through this handler

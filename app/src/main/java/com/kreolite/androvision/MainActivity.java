@@ -1,8 +1,12 @@
 package com.kreolite.androvision;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +16,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -23,13 +30,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     /**
      * Id to identify a camera permission request.
      */
+    public NsdServiceInfo mChoosenService = null;
     private static final int REQUEST_CAMERA = 0;
     private NsdHelper mNsdHelper;
-
+    private BroadcastReceiver mBroadcastReceiver;
     /**
      * Root of the layout of this Activity.
      */
     private View mLayout;
+    private LinearLayout mDynamicLayout;
     private TextView mIpAddressView;
     private String mDeviceIpAddress;
 
@@ -38,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLayout = findViewById(R.id.main_layout);
+        mDynamicLayout = (LinearLayout) findViewById(R.id.dynamic_layout);
         mIpAddressView = (TextView) findViewById(R.id.device_ip_address);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -63,6 +73,25 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
         mNsdHelper = new NsdHelper(this);
         mNsdHelper.initializeNsd();
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mDynamicLayout.removeAllViews();
+                for(final NsdServiceInfo info:mNsdHelper.getServiceInfos()){
+                    Button b = new Button(MainActivity.this);
+                    b.setText("remote control " + info);
+                    b.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            mChoosenService = info;
+                            remoteControl(view);
+                        }
+                    });
+                    mDynamicLayout.addView(b);
+
+                }
+            }
+        };
 
     }
     /**
@@ -103,6 +132,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if (mNsdHelper != null) {
             mNsdHelper.stopDiscovery();
         }
+        if (mBroadcastReceiver != null) {
+            unregisterReceiver(mBroadcastReceiver);
+        }
         super.onPause();
     }
 
@@ -112,10 +144,20 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if (mNsdHelper != null) {
             mNsdHelper.discoverServices();
         }
+        if (mBroadcastReceiver != null){
+            registerReceiver(mBroadcastReceiver, new IntentFilter(mNsdHelper.FOUND_INTENT));
+        }
     }
 
     public void remoteControl(View view) {
         Intent intent = new Intent(this, RosRemoteControlActivity.class);
+        if (mChoosenService != null) {
+            Bundle b = new Bundle();
+            b.putString(RosRemoteControlActivity.MASTER_URI_EXTRA,
+                    "http:/" + mChoosenService.getHost() + ":" + mChoosenService.getPort() + "/");
+
+            intent.putExtra(RosRemoteControlActivity.MASTER_URI_EXTRA, b);
+        }
         startActivity(intent);
     }
     public void carView(View view) {
