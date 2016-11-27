@@ -12,6 +12,8 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.NodeMain;
 import org.ros.node.topic.Subscriber;
 
+import java.util.Arrays;
+
 import static java.lang.Math.abs;
 
 /**
@@ -49,6 +51,7 @@ public class CarCommandListener extends AbstractNodeMain {
                 try {
                     String command = message.getData();
                     JSONObject jsonObj = new JSONObject();
+                    String currentPinValues = "";
                     if (command.equals(CarCommandPublisher.SWITCH_CAMERA)) {
                         // Switch camera or disable it
                         int numberOfCameras = Camera.getNumberOfCameras();
@@ -61,35 +64,36 @@ public class CarCommandListener extends AbstractNodeMain {
                             }
                         }
                     } else if(command.equals(CarCommandPublisher.STOP)) {
-                        jsonObj.put("pin1", 0);
-                        jsonObj.put("pin2", 0);
-                        jsonObj.put("pin3", 0);
-                        jsonObj.put("pin4", 0);
+                        currentPinValues = String.format("%02X", 0);
+                        currentPinValues += String.format("%02X", 0);
+                        currentPinValues += String.format("%02X", 0);
+                        currentPinValues += String.format("%02X", 0);
                     } else if (command.equals(CarCommandPublisher.FORWARD)) {
-                        jsonObj.put("pin1", 0);
-                        jsonObj.put("pin2", 255);
-                        jsonObj.put("pin3", 255);
-                        jsonObj.put("pin4", 0);
+                        currentPinValues = String.format("%02X", 0);
+                        currentPinValues += String.format("%02X", 255);
+                        currentPinValues += String.format("%02X", 255);
+                        currentPinValues += String.format("%02X", 0);
                     } else if (command.equals(CarCommandPublisher.REVERSE)) {
-                        jsonObj.put("pin1", 255);
-                        jsonObj.put("pin2", 0);
-                        jsonObj.put("pin3", 0);
-                        jsonObj.put("pin4", 255);
+                        currentPinValues = String.format("%02X", 255);
+                        currentPinValues += String.format("%02X", 0);
+                        currentPinValues += String.format("%02X", 0);
+                        currentPinValues += String.format("%02X", 255);
                     } else if (command.equals(CarCommandPublisher.LEFT)) {
-                        jsonObj.put("pin1", 0);
-                        jsonObj.put("pin2", 150);
-                        jsonObj.put("pin3", 0);
-                        jsonObj.put("pin4", 150);
+                        currentPinValues = String.format("%02X", 0);
+                        currentPinValues += String.format("%02X", 180);
+                        currentPinValues += String.format("%02X", 0);
+                        currentPinValues += String.format("%02X", 180);
                     } else if (command.equals(CarCommandPublisher.RIGHT)) {
-                        jsonObj.put("pin1", 150);
-                        jsonObj.put("pin2", 0);
-                        jsonObj.put("pin3", 150);
-                        jsonObj.put("pin4", 0);
+                        currentPinValues = String.format("%02X", 180);
+                        currentPinValues += String.format("%02X", 0);
+                        currentPinValues += String.format("%02X", 180);
+                        currentPinValues += String.format("%02X", 0);
                     }
-                    if (mUsbService != null && jsonObj != null) {
-                        mUsbService.write(jsonObj.toString().getBytes());
+                    if (mUsbService != null && !currentPinValues.isEmpty()) {
+                        Log.i(TAG, currentPinValues);
+                        mUsbService.write(currentPinValues.getBytes());
                     }
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     Log.e(getDefaultNodeName().toString(), e.getMessage());
                 }
             }
@@ -131,22 +135,21 @@ public class CarCommandListener extends AbstractNodeMain {
                         }
                     }
 
-                    JSONObject jsonObj = new JSONObject();
-                    jsonObj.put("pin1", pin1);
-                    jsonObj.put("pin2", pin2);
-                    jsonObj.put("pin3", pin3);
-                    jsonObj.put("pin4", pin4);
-                    String currentPinValues = pin1 + "," + pin2 + "," + pin3 + "," + pin4;
+                    String currentPinValues = String.format("%02X", pin1);
+                    currentPinValues += String.format("%02X", pin2);
+                    currentPinValues += String.format("%02X", pin3);
+                    currentPinValues += String.format("%02X", pin4);
+                    Log.i(TAG, currentPinValues);
 
                     if (!lastPinValues.equals(currentPinValues)) {
-                        Log.i(getDefaultNodeName().toString(), jsonObj.toString());
+                        Log.i(TAG, currentPinValues);
                         if (mUsbService != null) {
-                            mUsbService.write(jsonObj.toString().getBytes());
+                            mUsbService.write(currentPinValues.getBytes());
                         }
                         lastPinValues = currentPinValues;
                     }
-                } catch (JSONException e) {
-                    Log.e(getDefaultNodeName().toString(), e.getMessage());
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage());
                 }
             }
         });
