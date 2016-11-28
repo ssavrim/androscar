@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import roslib
-roslib.load_manifest('my_package')
+roslib.load_manifest('cv_bridge')
 import sys
 import rospy
 import cv2
