@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -19,14 +18,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import org.ros.address.InetAddressFactory;
 import org.ros.android.RosActivity;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.net.URI;
 import java.util.Set;
 
@@ -58,13 +55,8 @@ public class RosCameraActivity extends RosActivity {
         mNsdHelper.initializeNsd();
     }
     public void startMasterChooser() {
-        (new AsyncTask<Void, Void, Void>() {
-            protected Void doInBackground(Void... params) {
-                RosCameraActivity.this.nodeMainExecutorService.startMaster(false);
-                RosCameraActivity.this.init(RosCameraActivity.this.nodeMainExecutorService);
-                return null;
-            }
-        }).execute(new Void[0]);
+        RosCameraActivity.this.nodeMainExecutorService.startMaster(false);
+        RosCameraActivity.this.init();
     }
 
     @Override
@@ -105,8 +97,9 @@ public class RosCameraActivity extends RosActivity {
     @Override
     protected void init(NodeMainExecutor nodeMainExecutor) {
         URI masterUri = getMasterUri();
+        String hostAddress = InetAddressFactory.newNonLoopback().getHostAddress();
         mNsdHelper.registerService(masterUri.getPort());
-        NodeConfiguration nodeConfiguration =  NodeConfiguration.newPublic(masterUri.getHost(), masterUri);
+        NodeConfiguration nodeConfiguration =  NodeConfiguration.newPublic(hostAddress, masterUri);
         nodeMainExecutor.execute(carCamera, nodeConfiguration);
         nodeMainExecutor.execute(carCommand, nodeConfiguration);
         nodeMainExecutor.execute(carSensor, nodeConfiguration);

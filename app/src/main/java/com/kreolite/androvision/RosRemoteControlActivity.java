@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import org.ros.address.InetAddressFactory;
 import org.ros.android.BitmapFromCompressedImage;
 import org.ros.android.MessageCallable;
 import org.ros.android.RosActivity;
@@ -22,7 +23,6 @@ import org.ros.node.NodeMainExecutor;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.ExecutionException;
 
 
 public class RosRemoteControlActivity extends RosActivity {
@@ -43,7 +43,6 @@ public class RosRemoteControlActivity extends RosActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_remote_control);
-
         setup();
     }
     public void startMasterChooser() {
@@ -60,12 +59,7 @@ public class RosRemoteControlActivity extends RosActivity {
         if (masterUri == null ){
             super.startMasterChooser();
         } else {
-            (new AsyncTask<Void, Void, Void>() {
-                protected Void doInBackground(Void... params) {
-                    RosRemoteControlActivity.this.init(RosRemoteControlActivity.this.nodeMainExecutorService);
-                    return null;
-                }
-            }).execute(new Void[0]);
+            RosRemoteControlActivity.this.init();
         }
     }
 
@@ -86,21 +80,13 @@ public class RosRemoteControlActivity extends RosActivity {
 
     @Override
     protected void init(NodeMainExecutor nodeMainExecutor) {
-        try {
-            java.net.Socket socket = new java.net.Socket(getMasterUri().getHost(), getMasterUri().getPort());
-            java.net.InetAddress local_network_address = socket.getLocalAddress();
-            socket.close();
-            NodeConfiguration nodeConfiguration =
-                    NodeConfiguration.newPublic(local_network_address.getHostAddress(), getMasterUri());
-            nodeMainExecutor.execute(rosImageView, nodeConfiguration);
-            nodeMainExecutor.execute(rosDistanceView, nodeConfiguration);
-            nodeMainExecutor.execute(rosJoystick, nodeConfiguration);
-            nodeMainExecutor.execute(carCommand, nodeConfiguration);
-        } catch (IOException e) {
-            // Socket problem
-            Log.e(_TAG, "socket error trying to get networking information from the master uri");
-        }
-
+        URI masterUri = getMasterUri();
+        String hostAddress = InetAddressFactory.newNonLoopback().getHostAddress();
+        NodeConfiguration nodeConfiguration =  NodeConfiguration.newPublic(hostAddress, masterUri);
+        nodeMainExecutor.execute(rosImageView, nodeConfiguration);
+        nodeMainExecutor.execute(rosDistanceView, nodeConfiguration);
+        nodeMainExecutor.execute(rosJoystick, nodeConfiguration);
+        nodeMainExecutor.execute(carCommand, nodeConfiguration);
     }
     private void setup() {
         // Initialize view of the car camera

@@ -3,7 +3,6 @@ package com.kreolite.androvision;
 import android.hardware.Camera;
 import android.util.Log;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
@@ -11,8 +10,6 @@ import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
 import org.ros.node.NodeMain;
 import org.ros.node.topic.Subscriber;
-
-import java.util.Arrays;
 
 import static java.lang.Math.abs;
 

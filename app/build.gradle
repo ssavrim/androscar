@@ -33,7 +33,11 @@ dependencies {
     compile 'com.github.felHR85:UsbSerial:4.5'
     compile 'com.github.ctodobom:OpenCV-3.1.0-Android:-SNAPSHOT'
     compile 'com.akexorcist:bluetoothspp:1.0.0'
-    compile ('org.ros.android_core:android_honeycomb_mr2:[0.1,0.2)') {
+    /*compile ('org.ros.android_core:android_honeycomb_mr2:[0.1,0.2)') {
+        exclude group: 'junit'
+        exclude group: 'xml-apis'
+    }*/
+    compile ('org.ros.android_core:android_15:[0.1,)') {
         exclude group: 'junit'
         exclude group: 'xml-apis'
     }
