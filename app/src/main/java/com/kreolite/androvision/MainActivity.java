@@ -66,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 case "carView":
                     carView(null);
                     break;
+                case "carViewGPIO":
+                    carViewGPIO(null);
+                    break;
             }
         } catch (IOException e) {
                 // ignore
@@ -161,7 +164,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
     public void carView(View view) {
         Intent intent = new Intent(this, RosCameraActivity.class);
-        intent.putExtra("MASTER_URI", mDeviceIpAddress);
+        startActivity(intent);
+    }
+    public void carViewGPIO(View view) {
+        Intent intent = new Intent(this, RosCameraGPIOActivity.class);
         startActivity(intent);
     }
     /**

@@ -65,6 +65,9 @@
             android:name=".RosCameraActivity"
             android:screenOrientation="landscape" />
         <activity
+            android:name=".RosCameraGPIOActivity"
+            android:screenOrientation="landscape" />
+        <activity
             android:name=".RosRemoteControlActivity"
             android:screenOrientation="landscape" />
     </application>

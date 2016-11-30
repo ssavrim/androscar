@@ -21,14 +21,14 @@ import static java.lang.Math.abs;
 public class CarCommandListener extends AbstractNodeMain {
 
     private static final String TAG = "CarCommandListener";
-    private UsbService mUsbService;
+    private final CarCommandBackend mCarCommandBackend;
     private CarCameraPublisher mCamera;
     private int cameraId;
     private String lastPinValues = "";
 
-    public CarCommandListener(UsbService usbService, CarCameraPublisher camera) {
+    public CarCommandListener(CarCommandBackend carCommandBackend, CarCameraPublisher camera) {
         super();
-        mUsbService = usbService;
+        mCarCommandBackend = carCommandBackend;
         mCamera = camera;
     }
 
@@ -61,34 +61,15 @@ public class CarCommandListener extends AbstractNodeMain {
                             }
                         }
                     } else if(command.equals(CarCommandPublisher.STOP)) {
-                        currentPinValues = String.format("%02X", 0);
-                        currentPinValues += String.format("%02X", 0);
-                        currentPinValues += String.format("%02X", 0);
-                        currentPinValues += String.format("%02X", 0);
+                        mCarCommandBackend.setMotorActions(0, 0, 0, 0);
                     } else if (command.equals(CarCommandPublisher.FORWARD)) {
-                        currentPinValues = String.format("%02X", 0);
-                        currentPinValues += String.format("%02X", 255);
-                        currentPinValues += String.format("%02X", 255);
-                        currentPinValues += String.format("%02X", 0);
+                        mCarCommandBackend.setMotorActions(0, 255, 255, 0);
                     } else if (command.equals(CarCommandPublisher.REVERSE)) {
-                        currentPinValues = String.format("%02X", 255);
-                        currentPinValues += String.format("%02X", 0);
-                        currentPinValues += String.format("%02X", 0);
-                        currentPinValues += String.format("%02X", 255);
+                        mCarCommandBackend.setMotorActions(255, 0, 0, 255);
                     } else if (command.equals(CarCommandPublisher.LEFT)) {
-                        currentPinValues = String.format("%02X", 0);
-                        currentPinValues += String.format("%02X", 180);
-                        currentPinValues += String.format("%02X", 0);
-                        currentPinValues += String.format("%02X", 180);
+                        mCarCommandBackend.setMotorActions(0, 180, 0, 180);
                     } else if (command.equals(CarCommandPublisher.RIGHT)) {
-                        currentPinValues = String.format("%02X", 180);
-                        currentPinValues += String.format("%02X", 0);
-                        currentPinValues += String.format("%02X", 180);
-                        currentPinValues += String.format("%02X", 0);
-                    }
-                    if (mUsbService != null && !currentPinValues.isEmpty()) {
-                        Log.i(TAG, currentPinValues);
-                        mUsbService.write(currentPinValues.getBytes());
+                        mCarCommandBackend.setMotorActions(180, 0, 180, 0);
                     }
                 } catch (Exception e) {
                     Log.e(getDefaultNodeName().toString(), e.getMessage());
@@ -131,20 +112,7 @@ public class CarCommandListener extends AbstractNodeMain {
                             }
                         }
                     }
-
-                    String currentPinValues = String.format("%02X", pin1);
-                    currentPinValues += String.format("%02X", pin2);
-                    currentPinValues += String.format("%02X", pin3);
-                    currentPinValues += String.format("%02X", pin4);
-                    Log.i(TAG, currentPinValues);
-
-                    if (!lastPinValues.equals(currentPinValues)) {
-                        Log.i(TAG, currentPinValues);
-                        if (mUsbService != null) {
-                            mUsbService.write(currentPinValues.getBytes());
-                        }
-                        lastPinValues = currentPinValues;
-                    }
+                    mCarCommandBackend.setMotorActions(pin1, pin2, pin3, pin4);
                 } catch (Exception e) {
                     Log.e(TAG, e.getMessage());
                 }
