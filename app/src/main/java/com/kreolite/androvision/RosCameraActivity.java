@@ -52,7 +52,6 @@ public class RosCameraActivity extends RosActivity {
         mHandler = new UsbHandler(this);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mNsdHelper = new NsdHelper(this);
-        mNsdHelper.initializeNsd();
     }
     public void startMasterChooser() {
         RosCameraActivity.this.nodeMainExecutorService.startMaster(false);
@@ -62,12 +61,14 @@ public class RosCameraActivity extends RosActivity {
     @Override
     public void onResume() {
         super.onResume();
+        mNsdHelper.initializeNsd();
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
     }
     @Override
     public void onPause() {
         super.onPause();
+        mNsdHelper.tearDown();
         unregisterReceiver(mUsbReceiver);
         unbindService(usbConnection);
     }
