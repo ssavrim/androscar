@@ -55,7 +55,7 @@ public class RosCameraActivity extends RosActivity {
     }
     public void startMasterChooser() {
         RosCameraActivity.this.nodeMainExecutorService.startMaster(false);
-        RosCameraActivity.this.init();
+        RosCameraActivity.this.init(RosCameraActivity.this.nodeMainExecutorService);
     }
 
     @Override
@@ -163,7 +163,7 @@ public class RosCameraActivity extends RosActivity {
         public void onServiceConnected(ComponentName arg0, IBinder arg1) {
             usbService = ((UsbService.UsbBinder) arg1).getService();
             usbService.setHandler(mHandler);
-            carCommand = new CarCommandListener(usbService, carCamera);
+            carCommand = new CarCommandListener(new CarCommandArduinoBackend(usbService), carCamera);
             carSensor = new CarSensorPublisher(mSensorManager);
         }
 
