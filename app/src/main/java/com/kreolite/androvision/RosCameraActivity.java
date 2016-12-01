@@ -54,8 +54,8 @@ public class RosCameraActivity extends RosActivity {
         mNsdHelper = new NsdHelper(this);
     }
     public void startMasterChooser() {
-        RosCameraActivity.this.nodeMainExecutorService.startMaster(false);
-        RosCameraActivity.this.init(RosCameraActivity.this.nodeMainExecutorService);
+        nodeMainExecutorService.startMaster(false);
+        init();
     }
 
     @Override
