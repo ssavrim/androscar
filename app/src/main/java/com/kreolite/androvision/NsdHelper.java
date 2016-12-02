@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.nfc.Tag;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -52,9 +53,6 @@ public class NsdHelper {
         initializeResolveListener();
         initializeDiscoveryListener();
         initializeRegistrationListener();
-
-        //mNsdManager.init(mContext.getMainLooper(), this);
-
     }
 
     public void initializeDiscoveryListener() {
@@ -71,7 +69,11 @@ public class NsdHelper {
                 if (!service.getServiceType().equals(SERVICE_TYPE)) {
                     Log.d(TAG, "Unknown Service Type: " + service.getServiceType());
                 } else if (service.getServiceName().contains(mServiceName)){
-                    mNsdManager.resolveService(service, mResolveListener);
+                    try {
+                        mNsdManager.resolveService(service, mResolveListener);
+                    } catch (Exception e) {
+                        Log.w(TAG, "Error during Nsd resolving: " + e);
+                    }
                 }
             }
 

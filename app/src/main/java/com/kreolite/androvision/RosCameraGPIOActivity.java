@@ -53,8 +53,8 @@ public class RosCameraGPIOActivity extends RosActivity {
         mNsdHelper = new NsdHelper(this);
     }
     public void startMasterChooser() {
-        nodeMainExecutorService.startMaster(false);
-        init(nodeMainExecutorService);
+        RosCameraGPIOActivity.this.nodeMainExecutorService.startMaster(false);
+        RosCameraGPIOActivity.this.init();
     }
 
     @Override
@@ -64,8 +64,11 @@ public class RosCameraGPIOActivity extends RosActivity {
     }
     @Override
     public void onPause() {
+        if (mNsdHelper != null) {
+            mNsdHelper.tearDown();
+        }
+        RosCameraGPIOActivity.this.nodeMainExecutorService.forceShutdown();
         super.onPause();
-        mNsdHelper.tearDown();
     }
 
     @Override

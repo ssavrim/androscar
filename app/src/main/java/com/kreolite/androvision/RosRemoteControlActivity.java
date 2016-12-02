@@ -45,6 +45,11 @@ public class RosRemoteControlActivity extends RosActivity {
         setContentView(R.layout.activity_ros_remote_control);
         setup();
     }
+    @Override
+    protected void onPause() {
+        RosRemoteControlActivity.this.nodeMainExecutorService.forceShutdown();
+        super.onPause();
+    }
     public void startMasterChooser() {
         URI masterUri = null;
         Bundle bundle = getIntent().getBundleExtra(MASTER_URI_EXTRA);

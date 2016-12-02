@@ -52,25 +52,32 @@ public class RosCameraActivity extends RosActivity {
         mHandler = new UsbHandler(this);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mNsdHelper = new NsdHelper(this);
+        mNsdHelper.initializeNsd();
     }
     public void startMasterChooser() {
-        nodeMainExecutorService.startMaster(false);
-        init();
+        RosCameraActivity.this.nodeMainExecutorService.startMaster(false);
+        RosCameraActivity.this.init();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mNsdHelper.initializeNsd();
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
     }
     @Override
     public void onPause() {
+        if (mNsdHelper != null) {
+            mNsdHelper.tearDown();
+        }
+        if (mUsbReceiver != null) {
+            unregisterReceiver(mUsbReceiver);
+        }
+        if (usbConnection != null) {
+            unbindService(usbConnection);
+        }
+        RosCameraActivity.this.nodeMainExecutorService.forceShutdown();
         super.onPause();
-        mNsdHelper.tearDown();
-        unregisterReceiver(mUsbReceiver);
-        unbindService(usbConnection);
     }
     @Override
     public boolean onTouchEvent(MotionEvent event) {

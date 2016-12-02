@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
     @Override
     protected void onPause() {
-
         if (mNsdHelper != null) {
             mNsdHelper.stopDiscovery();
         }
