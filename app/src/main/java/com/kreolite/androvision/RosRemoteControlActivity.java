@@ -10,6 +10,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.ros.address.InetAddressFactory;
 import org.ros.android.BitmapFromCompressedImage;
 import org.ros.android.MessageCallable;
@@ -32,6 +34,7 @@ public class RosRemoteControlActivity extends RosActivity {
     private RosTextView<sensor_msgs.Range> rosDistanceView;
     private VirtualJoystickView rosJoystick;
     private final CarCommandPublisher carCommand;
+    private JSONObject mFrontRange;
 
     public RosRemoteControlActivity() {
         super(_TAG, _TAG);
@@ -44,6 +47,7 @@ public class RosRemoteControlActivity extends RosActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_remote_control);
         setup();
+        mFrontRange = new JSONObject();
     }
     @Override
     protected void onPause() {
@@ -107,7 +111,14 @@ public class RosRemoteControlActivity extends RosActivity {
         rosDistanceView.setMessageToStringCallable(new MessageCallable<String, sensor_msgs.Range>() {
             @Override
             public String call(sensor_msgs.Range message) {
-                return Float.toString(message.getRange()) + " cm";
+                try {
+                    if (message.getRange() > 0) {
+                        mFrontRange.put(message.getHeader().getFrameId(), Float.toString(message.getRange()) + " cm");
+                    }
+                    return "left: " + mFrontRange.get("/left") + " - " + "right: " + mFrontRange.get("/right");
+                } catch(JSONException e) {
+                    return "---";
+                }
             }
         });
 

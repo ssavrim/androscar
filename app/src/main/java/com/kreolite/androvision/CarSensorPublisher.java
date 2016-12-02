@@ -66,21 +66,24 @@ public class CarSensorPublisher extends AbstractNodeMain {
         rangePublisher.shutdown();
     }
 
-    public void publishRange(String message) {
+    public void publishRange(String messages) {
         try {
-            if (rangePublisher != null && !message.isEmpty()) {
-                //Log.d("CarSensor", "Publish front range: " + message);
-                String[] messageSplit = message.split(",");
-                Time currentTime = mConnectedNode.getCurrentTime();
-                sensor_msgs.Range range = rangePublisher.newMessage();
-                range.getHeader().setFrameId("/front_range");
-                range.getHeader().setStamp(currentTime);
-                range.setRadiationType(sensor_msgs.Range.ULTRASOUND);
-                range.setFieldOfView(0.1f);
-                range.setMinRange(Float.parseFloat(messageSplit[0]));
-                range.setMaxRange(Float.parseFloat(messageSplit[1]));
-                range.setRange(Float.parseFloat(messageSplit[2]));
-                rangePublisher.publish(range);
+            if (rangePublisher != null && !messages.isEmpty()) {
+                String[] message = messages.split("\n");
+                for (int i = 0; i < message.length; i++ ) {
+                    Log.d("CarSensor", "Publish front range: " + message);
+                    String[] messageSplit = message[i].split(",");
+                    Time currentTime = mConnectedNode.getCurrentTime();
+                    sensor_msgs.Range range = rangePublisher.newMessage();
+                    range.getHeader().setFrameId("/" + messageSplit[0]);
+                    range.getHeader().setStamp(currentTime);
+                    range.setRadiationType(sensor_msgs.Range.ULTRASOUND);
+                    range.setFieldOfView(0.1f);
+                    range.setMinRange(Float.parseFloat(messageSplit[1]));
+                    range.setMaxRange(Float.parseFloat(messageSplit[2]));
+                    range.setRange(Float.parseFloat(messageSplit[3]));
+                    rangePublisher.publish(range);
+                }
             }
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             Log.e("CarSensor", "Wrong range: " + e);

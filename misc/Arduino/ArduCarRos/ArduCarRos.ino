@@ -1,14 +1,16 @@
 #include <NewPing.h>
-#include <ArduinoJson.h>
 
 #define SERIALBAUDRATE 9600
-#define MAX_MILLIS_TO_WAIT 500
 #define PAYLOAD_SIZE 8 // Size of the payload which contains data to set pin of the motors.
 //HC-SR04 specification
-#define TRIGGER_PIN  2  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN     3  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define MIN_DISTANCE 10 // Minimum distance we want to ping for (in centimeters).
+#define SONAR_NUM     2 // Number of sensors.2
+#define LEFT_TRIGGER_PIN  3  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define LEFT_ECHO_PIN     2  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define RIGHT_TRIGGER_PIN  4  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define RIGHT_ECHO_PIN     5  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define MIN_DISTANCE 6 // Minimum distance we want to ping for (in centimeters).
 #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define PING_INTERVAL 33 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
 
 //L298N
 //Motor A
@@ -18,46 +20,51 @@ const int motorPin2  = 10;
 const int motorPin3  = 11;
 const int motorPin4  = 12;
 
-NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+
+unsigned long pingTimer[SONAR_NUM]; // Holds the times when the next ping should happen for each sensor.
+unsigned int cm[SONAR_NUM];         // Where the ping distances are stored.
+uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
+
+String sonarName[SONAR_NUM] = {"left", "right"};
+NewPing sonar[SONAR_NUM] = {     // Sensor object array.
+  NewPing(LEFT_TRIGGER_PIN, LEFT_ECHO_PIN, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping.
+  NewPing(RIGHT_TRIGGER_PIN, RIGHT_ECHO_PIN, MAX_DISTANCE)
+};
 
 void setup() {
+  Serial.begin(SERIALBAUDRATE);
+  // Initialize sonars
+  pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
+  for (uint8_t i = 1; i < SONAR_NUM; i++) // Set the starting time for each sensor.
+    pingTimer[i] = pingTimer[i - 1] + PING_INTERVAL;
+  // Initialier motor pins
   pinMode(motorPin1, OUTPUT);
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
   pinMode(motorPin4, OUTPUT);
-  Serial.begin(SERIALBAUDRATE);
 }
-void emergencyStop() {
-  // Stop the robot
-  analogWrite(motorPin1, 0);
-  analogWrite(motorPin2, 0);
-  analogWrite(motorPin3, 0);
-  analogWrite(motorPin4, 0);
-  // Empty serial buffer
-  while(Serial.available())
-    Serial.read();
-  // Reverse the robot
-  analogWrite(motorPin1, 255);
-  analogWrite(motorPin2, 0);
-  analogWrite(motorPin3, 0);
-  analogWrite(motorPin4, 255);
-  delay(250);
-  analogWrite(motorPin1, 0);
-  analogWrite(motorPin2, 0);
-  analogWrite(motorPin3, 0);
-  analogWrite(motorPin4, 0);
+void echoCheck() { // If ping received, set the sensor distance to array.
+  if (sonar[currentSensor].check_timer())
+    cm[currentSensor] = sonar[currentSensor].ping_result / US_ROUNDTRIP_CM;
 }
-void publishFrontUltrasound() {
-  unsigned int range = sonar.ping_cm();
-  if (range == 0) {
-    return;
+void sonarLoop() {
+  for (uint8_t i = 0; i < SONAR_NUM; i++) { // Loop through all the sensors.
+    if (millis() >= pingTimer[i]) {         // Is it this sensor's time to ping?
+      pingTimer[i] += PING_INTERVAL * SONAR_NUM;  // Set next time this sensor will be pinged.
+      if (i == 0 && currentSensor == SONAR_NUM - 1) publishSonarValues(); // Sensor ping cycle complete, do something with the results.
+      sonar[currentSensor].timer_stop();          // Make sure previous timer is canceled before starting a new ping (insurance).
+      currentSensor = i;                          // Sensor being accessed.
+      cm[currentSensor] = 0;                      // Make distance zero in case there's no ping echo for this sensor.
+      sonar[currentSensor].ping_timer(echoCheck); // Do the ping (processing continues, interrupt will call echoCheck to look for echo).
+    }
   }
-  String message = "";
-  Serial.println(message + MIN_DISTANCE + "," + MAX_DISTANCE + "," + range);
-  if (range <= MIN_DISTANCE) {
-    emergencyStop();
+}
+void publishSonarValues() {
+// Sensor ping cycle complete, do something with the results.
+  // The following code would be replaced with your code that does something with the ping results.
+  for (uint8_t i = 0; i < SONAR_NUM; i++) {
+    Serial.println(sonarName[i] + "," + MIN_DISTANCE + "," + MAX_DISTANCE + "," + cm[i]);
   }
-  delay(50);
 }
 int hex2int(byte input) {
   int result = -1;
@@ -89,6 +96,7 @@ int hex2int(byte input) {
   return result;
 }
 void loop() {
+  sonarLoop();
   //unsigned long starttime;
   int availableBytes = Serial.available();
   if (availableBytes == PAYLOAD_SIZE) {
@@ -107,20 +115,5 @@ void loop() {
     for(int n=0; n<availableBytes; n++)
       Serial.read();
   }
-  publishFrontUltrasound();
-  /*if (Serial.available() > 0) {  
-    // If anything comes in Serial (USB)
-    int start = millis();
-    for(int n=0; n<8; n++)
-        Serial.print(Serial.read()); // Then: Get them.
-    int stop = millis();
-    Serial.println("");
-   
-    Serial.println(stop - start);
-    analogWrite(motorPin1, 0);
-    analogWrite(motorPin2, 0);
-    analogWrite(motorPin3, 0);
-    analogWrite(motorPin4, 0);
-  }*/
 }
 
