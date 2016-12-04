@@ -32,7 +32,7 @@ NewPing sonar[SONAR_NUM] = {     // Sensor object array.
 };
 
 void setup() {
-  Serial.begin(SERIALBAUDRATE);
+  
   // Initialize sonars
   pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
   for (uint8_t i = 1; i < SONAR_NUM; i++) // Set the starting time for each sensor.
@@ -42,6 +42,7 @@ void setup() {
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
   pinMode(motorPin4, OUTPUT);
+  Serial.begin(SERIALBAUDRATE);
 }
 void echoCheck() { // If ping received, set the sensor distance to array.
   if (sonar[currentSensor].check_timer())
@@ -110,10 +111,6 @@ void loop() {
     analogWrite(motorPin2, myPinValues[1]);
     analogWrite(motorPin3, myPinValues[2]);
     analogWrite(motorPin4, myPinValues[3]);
-  } else {
-    // Simply empty the buffer
-    for(int n=0; n<availableBytes; n++)
-      Serial.read();
   }
 }
 
