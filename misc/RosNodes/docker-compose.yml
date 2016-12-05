@@ -8,7 +8,7 @@ services:
             - "ROS_MASTER_URI=${ROS_MASTER_URI}"
         command: rosrun image_transport republish compressed in:=/camera/image raw out:=/camera2
     balltracker:
-        build: ./balltracker/Dockerfile
+        build: ./balltracker
         container_name: balltracker
         network_mode: host
         depends_on:
@@ -21,7 +21,7 @@ services:
             - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
         command: python balltracker.py
     selfdriving:
-        build: ./selfdriving/Dockerfile
+        build: ./selfdriving
         container_name: selfdriving
         network_mode: host
         depends_on:
