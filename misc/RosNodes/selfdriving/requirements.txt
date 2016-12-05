@@ -1,0 +1,8 @@
+pip
+pandas
+bigml
+bigmler
+numpy
+scipy
+scikit-learn
+skll

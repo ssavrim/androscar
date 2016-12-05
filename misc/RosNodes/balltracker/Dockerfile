@@ -5,4 +5,4 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/ \
     && pip install imutils
 
-COPY balltracker.py /balltracker.py
+COPY balltracker.py ./balltracker.py
