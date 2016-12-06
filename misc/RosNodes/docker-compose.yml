@@ -32,4 +32,5 @@ services:
             - "ROS_MASTER_URI=${ROS_MASTER_URI}"
         volumes:
             - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-        command: python selfdriving.py
+            - "~/dev/dataset:/dataset:rw"
+        command: python selfdriving.py train
