@@ -1,7 +1,8 @@
-# Ros2CV node
+# Ros nodes using Docker
 
-This node aims at converting Compressed image from Android application to OpenCV image.
-It will then try to track a green ball.
+This section contains a set of nodes:
+- balltracker:converts Compressed image from Android application to OpenCV image. It will then try to track a green ball.
+- selfdriving: performs self-driving machine-learning based on sensors
 
 To do that:
 - Install docker and docker-compose
