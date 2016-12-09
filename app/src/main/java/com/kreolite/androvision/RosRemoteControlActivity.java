@@ -1,9 +1,7 @@
 package com.kreolite.androvision;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -22,7 +20,6 @@ import org.ros.android.view.VirtualJoystickView;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -47,7 +44,14 @@ public class RosRemoteControlActivity extends RosActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_remote_control);
         setup();
-        mFrontRange = new JSONObject();
+        try {
+            mFrontRange = new JSONObject();
+            mFrontRange.put("left", "NA");
+            mFrontRange.put("center", "NA");
+            mFrontRange.put("right", "NA");
+        } catch(JSONException e) {
+            Log.e(_TAG, "Error on json init: " + e);
+        }
     }
     @Override
     protected void onPause() {
@@ -72,19 +76,9 @@ public class RosRemoteControlActivity extends RosActivity {
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            final Toast toast = Toast.makeText(this, "Switching cameras.", Toast.LENGTH_SHORT);
-            carCommand.publish(CarCommandPublisher.SWITCH_CAMERA);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    toast.show();
-                }
-            });
-        }
-        return true;
+    public void switchCamera(View view) {
+        Toast.makeText(this, "Switching cameras.", Toast.LENGTH_SHORT).show();
+        carCommand.publish(CarCommandPublisher.SWITCH_CAMERA);
     }
 
     @Override
@@ -111,13 +105,17 @@ public class RosRemoteControlActivity extends RosActivity {
         rosDistanceView.setMessageToStringCallable(new MessageCallable<String, sensor_msgs.Range>() {
             @Override
             public String call(sensor_msgs.Range message) {
+                String displayMsg = "---";
                 try {
                     if (message.getRange() > 0) {
                         mFrontRange.put(message.getHeader().getFrameId(), Float.toString(message.getRange()) + " cm");
                     }
-                    return "left: " + mFrontRange.get("/left") + " - " + "right: " + mFrontRange.get("/right");
+                    displayMsg = "left: " + mFrontRange.get("/left");
+                    displayMsg += " - " + "center: " + mFrontRange.get("/center");
+                    displayMsg += " - " + "right: " + mFrontRange.get("/right");
+                    return displayMsg;
                 } catch(JSONException e) {
-                    return "---";
+                    return displayMsg;
                 }
             }
         });

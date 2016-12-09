@@ -63,7 +63,8 @@
 
         <activity
             android:name=".RosCameraActivity"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:exported="true"/>
         <activity
             android:name=".RosCameraGPIOActivity"
             android:screenOrientation="landscape" />

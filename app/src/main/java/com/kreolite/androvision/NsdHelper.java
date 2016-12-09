@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
-import android.nfc.Tag;
 import android.util.Log;
 
 import java.util.ArrayList;
