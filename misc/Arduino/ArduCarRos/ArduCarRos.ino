@@ -3,14 +3,16 @@
 #define SERIALBAUDRATE 9600
 #define PAYLOAD_SIZE 8 // Size of the payload which contains data to set pin of the motors.
 //HC-SR04 specification
-#define SONAR_NUM     2 // Number of sensors.2
+#define SONAR_NUM     3 // Number of sensors.
 #define LEFT_TRIGGER_PIN  3  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define LEFT_ECHO_PIN     2  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define CENTER_TRIGGER_PIN  7  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define CENTER_ECHO_PIN     6  // Arduino pin tied to echo pin on the ultrasonic sensor.
 #define RIGHT_TRIGGER_PIN  4  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define RIGHT_ECHO_PIN     5  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define MIN_DISTANCE 6 // Minimum distance we want to ping for (in centimeters).
-#define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-#define PING_INTERVAL 33 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
+#define MIN_DISTANCE 2 // Minimum distance we want to ping for (in centimeters).
+#define MAX_DISTANCE 100 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define PING_INTERVAL 30 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
 
 //L298N
 //Motor A
@@ -25,14 +27,14 @@ unsigned long pingTimer[SONAR_NUM]; // Holds the times when the next ping should
 unsigned int cm[SONAR_NUM];         // Where the ping distances are stored.
 uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
 
-String sonarName[SONAR_NUM] = {"left", "right"};
+String sonarName[SONAR_NUM] = {"left", "right", "center"};
 NewPing sonar[SONAR_NUM] = {     // Sensor object array.
   NewPing(LEFT_TRIGGER_PIN, LEFT_ECHO_PIN, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping.
-  NewPing(RIGHT_TRIGGER_PIN, RIGHT_ECHO_PIN, MAX_DISTANCE)
+  NewPing(RIGHT_TRIGGER_PIN, RIGHT_ECHO_PIN, MAX_DISTANCE),
+  NewPing(CENTER_TRIGGER_PIN, CENTER_ECHO_PIN, MAX_DISTANCE)
 };
 
 void setup() {
-  
   // Initialize sonars
   pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
   for (uint8_t i = 1; i < SONAR_NUM; i++) // Set the starting time for each sensor.
@@ -55,7 +57,7 @@ void sonarLoop() {
       if (i == 0 && currentSensor == SONAR_NUM - 1) publishSonarValues(); // Sensor ping cycle complete, do something with the results.
       sonar[currentSensor].timer_stop();          // Make sure previous timer is canceled before starting a new ping (insurance).
       currentSensor = i;                          // Sensor being accessed.
-      cm[currentSensor] = 0;                      // Make distance zero in case there's no ping echo for this sensor.
+      cm[currentSensor] = MAX_DISTANCE;           // Make distance to maximum. We consider that in this case the maximum distance is reached.
       sonar[currentSensor].ping_timer(echoCheck); // Do the ping (processing continues, interrupt will call echoCheck to look for echo).
     }
   }
