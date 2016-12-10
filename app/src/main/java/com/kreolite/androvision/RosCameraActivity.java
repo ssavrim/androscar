@@ -104,6 +104,12 @@ public class RosCameraActivity extends RosActivity {
 
     @Override
     protected void init(NodeMainExecutor nodeMainExecutor) {
+        Intent intent = getIntent();
+        cameraId = intent.getIntExtra("cameraId", -1);
+        if (cameraId != -1) {
+            carCamera.setCamera(Camera.open(cameraId));
+        }
+
         URI masterUri = getMasterUri();
         String hostAddress = InetAddressFactory.newNonLoopback().getHostAddress();
         mNsdHelper.registerService(masterUri.getPort());
