@@ -11,8 +11,9 @@
 #define RIGHT_TRIGGER_PIN  4  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define RIGHT_ECHO_PIN     5  // Arduino pin tied to echo pin on the ultrasonic sensor.
 #define MIN_DISTANCE 2 // Minimum distance we want to ping for (in centimeters).
-#define MAX_DISTANCE 100 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define MAX_DISTANCE 150 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 #define PING_INTERVAL 30 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
+#define SAMPLING_SIZE 5 // Sampling of ping size. The objective is to reduce noise.
 
 //L298N
 //Motor A
@@ -22,9 +23,10 @@ const int motorPin2  = 10;
 const int motorPin3  = 11;
 const int motorPin4  = 12;
 
-
 unsigned long pingTimer[SONAR_NUM]; // Holds the times when the next ping should happen for each sensor.
-unsigned int cm[SONAR_NUM];         // Where the ping distances are stored.
+unsigned int cm[SONAR_NUM];         // Last ping distances.
+unsigned int sampling[SONAR_NUM][SAMPLING_SIZE];   // Sampling of ping distances.
+
 uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
 
 String sonarName[SONAR_NUM] = {"left", "right", "center"};
@@ -39,7 +41,13 @@ void setup() {
   pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
   for (uint8_t i = 1; i < SONAR_NUM; i++) // Set the starting time for each sensor.
     pingTimer[i] = pingTimer[i - 1] + PING_INTERVAL;
-  // Initialier motor pins
+
+  for (uint8_t i = 0; i < SONAR_NUM; i++) {
+      for (uint8_t j = 0; j < SAMPLING_SIZE; j++) {
+          sampling[i][j] = MAX_DISTANCE;
+      }
+  }
+  // Initialize motor pins
   pinMode(motorPin1, OUTPUT);
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
@@ -63,11 +71,18 @@ void sonarLoop() {
   }
 }
 void publishSonarValues() {
-// Sensor ping cycle complete, do something with the results.
-  // The following code would be replaced with your code that does something with the ping results.
-  for (uint8_t i = 0; i < SONAR_NUM; i++) {
-    Serial.println(sonarName[i] + "," + MIN_DISTANCE + "," + MAX_DISTANCE + "," + cm[i]);
-  }
+    unsigned int range;
+    // Sensor ping cycle complete, do something with the results.
+    // The following code would be replaced with your code that does something with the ping results.
+    for (uint8_t i = 0; i < SONAR_NUM; i++) {
+        sampling[i][SAMPLING_SIZE-1] = cm[i];
+        range = cm[i];
+        for (uint8_t j = 0; j < SAMPLING_SIZE-1; j++) {
+            sampling[i][j] = sampling[i][j+1];
+            range += sampling[i][j];
+        }
+        Serial.println(sonarName[i] + "," + MIN_DISTANCE + "," + MAX_DISTANCE + "," + range/SAMPLING_SIZE);
+    }
 }
 int hex2int(byte input) {
   int result = -1;
