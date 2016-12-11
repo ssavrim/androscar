@@ -47,6 +47,7 @@ public class RosCameraActivity extends RosActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_ros_camera);
         carCamera = (CarCameraPublisher) findViewById(R.id.ros_camera_preview_view);
         mHandler = new UsbHandler(this);

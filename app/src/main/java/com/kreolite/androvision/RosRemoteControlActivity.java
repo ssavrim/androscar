@@ -7,6 +7,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,7 +17,6 @@ import org.ros.android.MessageCallable;
 import org.ros.android.RosActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.android.view.RosTextView;
-import org.ros.android.view.VirtualJoystickView;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
@@ -29,13 +29,12 @@ public class RosRemoteControlActivity extends RosActivity {
     public static final String MASTER_URI_EXTRA = "MASTER_URI";
     private RosImageView<sensor_msgs.CompressedImage> rosImageView;
     private RosTextView<sensor_msgs.Range> rosDistanceView;
-    private VirtualJoystickView rosJoystick;
-    private final CarCommandPublisher carCommand;
+    private CarCommandPublisher carCommand;
     private JSONObject mFrontRange;
+    private ToggleButton driveModeAuto;
 
     public RosRemoteControlActivity() {
         super(_TAG, _TAG);
-        carCommand = new CarCommandPublisher();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +43,8 @@ public class RosRemoteControlActivity extends RosActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_remote_control);
         setup();
+        driveModeAuto = (ToggleButton)findViewById(R.id.btnAutoDriveSwitch);
+        driveModeAuto.setChecked(false);
         try {
             mFrontRange = new JSONObject();
             mFrontRange.put("left", "NA");
@@ -78,7 +79,27 @@ public class RosRemoteControlActivity extends RosActivity {
 
     public void switchCamera(View view) {
         Toast.makeText(this, "Switching cameras.", Toast.LENGTH_SHORT).show();
-        carCommand.publish(CarCommandPublisher.SWITCH_CAMERA);
+        carCommand.publishCmdSimple(CarCommandPublisher.SWITCH_CAMERA);
+    }
+
+    public void switchAutoDriveMode(View view) {
+        if (!driveModeAuto.isChecked()) {
+            Toast.makeText(this, "Disabled drive mode auto.", Toast.LENGTH_SHORT).show();
+            carCommand.publishCmdVelocity(0.0D, 0.0D);
+        } else {
+            Toast.makeText(this, "Enabled drive mode auto.", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void autoDriveMode() {
+        if (mFrontRange != null) {
+            try {
+                double angularVelocityZ = (mFrontRange.getDouble("/left") - mFrontRange.getDouble("/right")) / (mFrontRange.getDouble("/left") + mFrontRange.getDouble("/right"));
+                Log.i(_TAG, "Command velocity: " + angularVelocityZ);
+                carCommand.publishCmdVelocity(1.0D, angularVelocityZ);
+            } catch(JSONException e) {
+                Log.e(_TAG, "Error on command velocity: " + e);
+            }
+        }
     }
 
     @Override
@@ -88,7 +109,6 @@ public class RosRemoteControlActivity extends RosActivity {
         NodeConfiguration nodeConfiguration =  NodeConfiguration.newPublic(hostAddress, masterUri);
         nodeMainExecutor.execute(rosImageView, nodeConfiguration);
         nodeMainExecutor.execute(rosDistanceView, nodeConfiguration);
-        nodeMainExecutor.execute(rosJoystick, nodeConfiguration);
         nodeMainExecutor.execute(carCommand, nodeConfiguration);
     }
     private void setup() {
@@ -108,11 +128,14 @@ public class RosRemoteControlActivity extends RosActivity {
                 String displayMsg = "---";
                 try {
                     if (message.getRange() > 0) {
-                        mFrontRange.put(message.getHeader().getFrameId(), Float.toString(message.getRange()) + " cm");
+                        mFrontRange.put(message.getHeader().getFrameId(), message.getRange());
                     }
-                    displayMsg = "left: " + mFrontRange.get("/left");
-                    displayMsg += " - " + "center: " + mFrontRange.get("/center");
-                    displayMsg += " - " + "right: " + mFrontRange.get("/right");
+                    displayMsg = "left: " + mFrontRange.get("/left") + " cm";
+                    displayMsg += " - " + "center: " + mFrontRange.get("/center") + " cm";
+                    displayMsg += " - " + "right: " + mFrontRange.get("/right") + " cm";
+                    if(driveModeAuto.isChecked()) {
+                        autoDriveMode();
+                    }
                     return displayMsg;
                 } catch(JSONException e) {
                     return displayMsg;
@@ -120,40 +143,40 @@ public class RosRemoteControlActivity extends RosActivity {
             }
         });
 
+        // Initialize virtual joystick
+        carCommand = (CarCommandPublisher) findViewById(R.id.virtualJoystick);
+        carCommand.setTopicName(CarCommandPublisher.VELOCITY_ACTION_TOPIC);
+
         // Initialize simple actions to send to the camera
         Button btnUp = (Button)findViewById(R.id.btnForward);
         btnUp.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish(CarCommandPublisher.FORWARD);
+                carCommand.publishCmdSimple(CarCommandPublisher.FORWARD);
             }
         });
         Button btnDown = (Button)findViewById(R.id.btnReverse);
         btnDown.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish(CarCommandPublisher.REVERSE);
+                carCommand.publishCmdSimple(CarCommandPublisher.REVERSE);
             }
         });
         Button btnLeft = (Button)findViewById(R.id.btnLeft);
         btnLeft.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish(CarCommandPublisher.LEFT);
+                carCommand.publishCmdSimple(CarCommandPublisher.LEFT);
             }
         });
         Button btnRight = (Button)findViewById(R.id.btnRight);
         btnRight.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish(CarCommandPublisher.RIGHT);
+                carCommand.publishCmdSimple(CarCommandPublisher.RIGHT);
             }
         });
         Button btnStop = (Button)findViewById(R.id.btnStop);
         btnStop.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                carCommand.publish(CarCommandPublisher.STOP);
+                carCommand.publishCmdSimple(CarCommandPublisher.STOP);
             }
         });
-
-        // Initialize simple actions to send to the camera
-        rosJoystick = (VirtualJoystickView) findViewById(R.id.virtualJoystick);
-        rosJoystick.setTopicName(CarCommandPublisher.VELOCITY_ACTION_TOPIC);
     }
 }

@@ -43,7 +43,7 @@
             android:layout_alignBottom="@+id/btnStop"
             android:layout_alignParentStart="true" />
 
-        <org.ros.android.view.VirtualJoystickView
+        <com.kreolite.androvision.CarCommandPublisher
             android:id="@+id/virtualJoystick"
             android:layout_width="250dp"
             android:layout_alignBottom="@+id/btnReverse"
@@ -98,11 +98,22 @@
             android:layout_height="50dp"
             android:id="@+id/btnCameraSwitch"
             android:onClick="switchCamera"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
             android:layout_width="50dp"
             android:visibility="visible"
-            android:background="@android:drawable/ic_menu_camera" />
+            android:background="@android:drawable/ic_menu_camera"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
+
+        <ToggleButton
+            android:layout_height="50dp"
+            android:onClick="switchAutoDriveMode"
+            android:id="@+id/btnAutoDriveSwitch"
+            android:layout_width="80dp"
+            android:textOff="MANUAL"
+            android:textOn="AUTO"
+            android:textSize="10sp"
+            android:layout_below="@+id/btnCameraSwitch"
+            android:layout_alignParentStart="true" />
 
     </RelativeLayout>
 
