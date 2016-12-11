@@ -1,7 +1,7 @@
 #include <NewPing.h>
 
 #define SERIALBAUDRATE 9600
-#define PAYLOAD_SIZE 8 // Size of the payload which contains data to set pin of the motors.
+#define PAYLOAD_SIZE 4 // Size of the payload which contains data to set pin of the motors.
 //HC-SR04 specification
 #define SONAR_NUM     3 // Number of sensors.
 #define LEFT_TRIGGER_PIN  3  // Arduino pin tied to trigger pin on the ultrasonic sensor.
@@ -26,7 +26,6 @@ const int motorPin4  = 12;
 unsigned long pingTimer[SONAR_NUM]; // Holds the times when the next ping should happen for each sensor.
 unsigned int cm[SONAR_NUM];         // Last ping distances.
 unsigned int sampling[SONAR_NUM][SAMPLING_SIZE];   // Sampling of ping distances.
-
 uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
 
 String sonarName[SONAR_NUM] = {"left", "right", "center"};
@@ -36,24 +35,6 @@ NewPing sonar[SONAR_NUM] = {     // Sensor object array.
   NewPing(CENTER_TRIGGER_PIN, CENTER_ECHO_PIN, MAX_DISTANCE)
 };
 
-void setup() {
-  // Initialize sonars
-  pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
-  for (uint8_t i = 1; i < SONAR_NUM; i++) // Set the starting time for each sensor.
-    pingTimer[i] = pingTimer[i - 1] + PING_INTERVAL;
-
-  for (uint8_t i = 0; i < SONAR_NUM; i++) {
-      for (uint8_t j = 0; j < SAMPLING_SIZE; j++) {
-          sampling[i][j] = MAX_DISTANCE;
-      }
-  }
-  // Initialize motor pins
-  pinMode(motorPin1, OUTPUT);
-  pinMode(motorPin2, OUTPUT);
-  pinMode(motorPin3, OUTPUT);
-  pinMode(motorPin4, OUTPUT);
-  Serial.begin(SERIALBAUDRATE);
-}
 void echoCheck() { // If ping received, set the sensor distance to array.
   if (sonar[currentSensor].check_timer())
     cm[currentSensor] = sonar[currentSensor].ping_result / US_ROUNDTRIP_CM;
@@ -84,50 +65,35 @@ void publishSonarValues() {
         Serial.println(sonarName[i] + "," + MIN_DISTANCE + "," + MAX_DISTANCE + "," + range/SAMPLING_SIZE);
     }
 }
-int hex2int(byte input) {
-  int result = -1;
-  // Value shall be between [0-9] or [A-F]
-  switch (input) {
-    case 'A':
-      result = 10;
-      break;
-    case 'B':
-      result = 11;
-      break;
-    case 'C':
-      result = 12;
-      break;
-    case 'D':
-      result = 13;
-      break;
-    case 'E':
-      result = 14;
-      break;
-    case 'F':
-      result = 15;
-      break;
-    default:
-      String res = "";
-      res += (char) input;
-      result = res.toInt();
+void motorLoop() {
+  int availableBytes = Serial.available();
+  if (Serial.available() == PAYLOAD_SIZE) {
+    analogWrite(motorPin1, Serial.read());
+    analogWrite(motorPin2, Serial.read());
+    analogWrite(motorPin3, Serial.read());
+    analogWrite(motorPin4, Serial.read());
   }
-  return result;
+}
+void setup() {
+  // Initialize sonars
+  pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
+  for (uint8_t i = 1; i < SONAR_NUM; i++) // Set the starting time for each sensor.
+    pingTimer[i] = pingTimer[i - 1] + PING_INTERVAL;
+
+  for (uint8_t i = 0; i < SONAR_NUM; i++) {
+      for (uint8_t j = 0; j < SAMPLING_SIZE; j++) {
+          sampling[i][j] = MAX_DISTANCE;
+      }
+  }
+  // Initialize motor pins
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(motorPin3, OUTPUT);
+  pinMode(motorPin4, OUTPUT);
+  Serial.begin(SERIALBAUDRATE);
 }
 void loop() {
-  sonarLoop();
-  //unsigned long starttime;
-  int availableBytes = Serial.available();
-  if (availableBytes == PAYLOAD_SIZE) {
-    int myPinValues[] = {0, 0, 0, 0};
-    //starttime = millis();
-    for(int n=0; n<PAYLOAD_SIZE/2; n++) {
-      myPinValues[n] = hex2int(Serial.read()) * 16 + hex2int(Serial.read());
-    }
-    //Serial.println(millis() - starttime);
-    analogWrite(motorPin1, myPinValues[0]);
-    analogWrite(motorPin2, myPinValues[1]);
-    analogWrite(motorPin3, myPinValues[2]);
-    analogWrite(motorPin4, myPinValues[3]);
-  }
+    sonarLoop();
+    motorLoop();
 }
 
