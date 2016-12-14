@@ -10,10 +10,10 @@
 #define CENTER_ECHO_PIN     6  // Arduino pin tied to echo pin on the ultrasonic sensor.
 #define RIGHT_TRIGGER_PIN  4  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define RIGHT_ECHO_PIN     5  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define MIN_DISTANCE 2 // Minimum distance we want to ping for (in centimeters).
+#define MIN_DISTANCE 10 // Minimum distance we want to ping for (in centimeters).
 #define MAX_DISTANCE 150 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 #define PING_INTERVAL 30 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
-#define SAMPLING_SIZE 5 // Sampling of ping size. The objective is to reduce noise.
+#define SAMPLING_SIZE 3 // Sampling of ping size. The objective is to reduce noise.
 
 //L298N
 //Motor A
@@ -54,7 +54,6 @@ void sonarLoop() {
 void publishSonarValues() {
     unsigned int range;
     // Sensor ping cycle complete, do something with the results.
-    // The following code would be replaced with your code that does something with the ping results.
     for (uint8_t i = 0; i < SONAR_NUM; i++) {
         sampling[i][SAMPLING_SIZE-1] = cm[i];
         range = cm[i];
@@ -63,6 +62,23 @@ void publishSonarValues() {
             range += sampling[i][j];
         }
         Serial.println(sonarName[i] + "," + MIN_DISTANCE + "," + MAX_DISTANCE + "," + range/SAMPLING_SIZE);
+        //Serial.print(range/SAMPLING_SIZE);
+        //Serial.print(",");
+        avoidCollision(range/SAMPLING_SIZE);
+    }
+    //Serial.println("");
+}
+void avoidCollision(unsigned int distance)
+{
+    if (distance <= MIN_DISTANCE) {
+        analogWrite(motorPin1, 0);
+        analogWrite(motorPin2, 0);
+        analogWrite(motorPin3, 0);
+        analogWrite(motorPin4, 0);
+        while(Serial.available() > 0) {
+            // Empty the serial buffer
+            Serial.read();
+        }
     }
 }
 void motorLoop() {

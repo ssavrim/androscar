@@ -94,8 +94,11 @@ public class RosRemoteControlActivity extends RosActivity {
         if (mFrontRange != null) {
             try {
                 double angularVelocityZ = (mFrontRange.getDouble("/left") - mFrontRange.getDouble("/right")) / (mFrontRange.getDouble("/left") + mFrontRange.getDouble("/right"));
-                Log.i(_TAG, "Command velocity: " + angularVelocityZ);
-                carCommand.publishCmdVelocity(1.0D, angularVelocityZ);
+                double linearVelocityX = 1.0D;
+                if (mFrontRange.getDouble("/center") <= 15) {
+                    linearVelocityX = -1.0D;
+                }
+                carCommand.publishCmdVelocity(linearVelocityX, angularVelocityZ);
             } catch(JSONException e) {
                 Log.e(_TAG, "Error on command velocity: " + e);
             }
