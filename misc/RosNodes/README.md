@@ -13,6 +13,15 @@ To do that:
     - docker-compose build
     - docker-compose up
 
+Notes:
+- To start android embedded application remotely, you configure the device as adb over tcp:
+    - adb tcpip 5555
+    - adb connect <ip_address_of_your_robot> (.i.e 192.168.1.1)
+    - To stop the application:
+        adb shell am force-stop com.kreolite.androvision
+    - To start the application:
+        adb shell am start -n com.kreolite.androvision/.RosCameraActivity --ei cameraId 0
+
 # Reference:
 
 http://www.pyimagesearch.com/2015/09/21/opencv-track-object-movement/
