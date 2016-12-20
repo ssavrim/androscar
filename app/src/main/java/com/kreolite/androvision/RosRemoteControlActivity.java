@@ -163,9 +163,6 @@ public class RosRemoteControlActivity extends RosActivity {
                     }
                     angularVelocityZ = -Math.cos(Math.toRadians(angle));
                 }
-
-                Log.i(_TAG, "angle: " + angle + " - strength: " + strength);
-                Log.i(_TAG, "linear: " + linearVelocityX + " - angular: " + angularVelocityZ);
                 carCommand.publishCmdVelocity(linearVelocityX, angularVelocityZ);
             }
         });
