@@ -1,11 +1,9 @@
 package com.kreolite.androvision;
 
-import android.content.Context;
-import android.util.AttributeSet;
 import android.util.Log;
 
-import org.ros.android.view.VirtualJoystickView;
 import org.ros.namespace.GraphName;
+import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
@@ -17,13 +15,12 @@ import org.ros.node.topic.Publisher;
  * @author ssavrimo@gmail.com
  */
 
-public class CarCommandPublisher extends VirtualJoystickView {
+public class CarCommandPublisher extends AbstractNodeMain {
     private Publisher<std_msgs.String> publisherCmdSimple;
     private Publisher<geometry_msgs.Twist> publisherCmdVelocity;
 
     public static final String SIMPLE_ACTION_TOPIC = "car_command/cmd_simple";
     public static final String VELOCITY_ACTION_TOPIC = "car_command/cmd_vel";
-    public static final String AUTO_VELOCITY_ACTION_TOPIC = "car_command/auto_vel";
 
     public static final String SWITCH_CAMERA = "switch_camera";
     public static final String FORWARD = "forward";
@@ -31,18 +28,6 @@ public class CarCommandPublisher extends VirtualJoystickView {
     public static final String LEFT = "left";
     public static final String RIGHT = "right";
     public static final String STOP = "stop";
-
-    public CarCommandPublisher(Context context) {
-        super(context);
-    }
-
-    public CarCommandPublisher(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public CarCommandPublisher(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
 
     @Override
     public GraphName getDefaultNodeName() {
@@ -58,9 +43,9 @@ public class CarCommandPublisher extends VirtualJoystickView {
 
     @Override
     public void onShutdown(Node arg0) {
-        super.onShutdown(arg0);
         publisherCmdSimple.shutdown();
         publisherCmdVelocity.shutdown();
+        super.onShutdown(arg0);
     }
 
     public void publishCmdSimple(String command) {

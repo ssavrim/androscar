@@ -1,12 +1,14 @@
 from __future__ import print_function
+
+import pandas as pd
 import rospy
-import constants
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
-import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
+
+import constants
 from sensor_listener import SensorListener
 
 

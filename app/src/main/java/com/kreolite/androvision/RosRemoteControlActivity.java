@@ -23,6 +23,8 @@ import org.ros.node.NodeMainExecutor;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import io.github.controlwear.virtual.joystick.android.JoystickView;
+
 
 public class RosRemoteControlActivity extends RosActivity {
     private static final String _TAG = "RosRemoteControl";
@@ -45,14 +47,7 @@ public class RosRemoteControlActivity extends RosActivity {
         setup();
         driveModeAuto = (ToggleButton)findViewById(R.id.btnAutoDriveSwitch);
         driveModeAuto.setChecked(false);
-        try {
-            mFrontRange = new JSONObject();
-            mFrontRange.put("left", "NA");
-            mFrontRange.put("center", "NA");
-            mFrontRange.put("right", "NA");
-        } catch(JSONException e) {
-            Log.e(_TAG, "Error on json init: " + e);
-        }
+        mFrontRange = new JSONObject();
     }
     @Override
     protected void onPause() {
@@ -78,7 +73,7 @@ public class RosRemoteControlActivity extends RosActivity {
     }
 
     public void switchCamera(View view) {
-        Toast.makeText(this, "Switching cameras.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Switching camera.", Toast.LENGTH_SHORT).show();
         carCommand.publishCmdSimple(CarCommandPublisher.SWITCH_CAMERA);
     }
 
@@ -90,12 +85,17 @@ public class RosRemoteControlActivity extends RosActivity {
             Toast.makeText(this, "Enabled drive mode auto.", Toast.LENGTH_SHORT).show();
         }
     }
-    private void autoDriveMode() {
+    private void autoDriveMode(sensor_msgs.Range message) {
         if (mFrontRange != null) {
             try {
-                double angularVelocityZ = (mFrontRange.getDouble("/left") - mFrontRange.getDouble("/right")) / (mFrontRange.getDouble("/left") + mFrontRange.getDouble("/right"));
+                float minRange = message.getMinRange();
+                int leftRange = mFrontRange.getInt("/left");
+                int centerRange = mFrontRange.getInt("/center");
+                int rightRange = mFrontRange.getInt("/right");
+
+                double angularVelocityZ = (double) (leftRange - rightRange) / (leftRange + rightRange);
                 double linearVelocityX = 1.0D;
-                if (mFrontRange.getDouble("/center") <= 15) {
+                if (leftRange <= minRange || centerRange <= minRange || rightRange <= minRange ) {
                     linearVelocityX = -1.0D;
                 }
                 carCommand.publishCmdVelocity(linearVelocityX, angularVelocityZ);
@@ -137,7 +137,7 @@ public class RosRemoteControlActivity extends RosActivity {
                     displayMsg += " - " + "center: " + mFrontRange.get("/center") + " cm";
                     displayMsg += " - " + "right: " + mFrontRange.get("/right") + " cm";
                     if(driveModeAuto.isChecked()) {
-                        autoDriveMode();
+                        autoDriveMode(message);
                     }
                     return displayMsg;
                 } catch(JSONException e) {
@@ -147,9 +147,28 @@ public class RosRemoteControlActivity extends RosActivity {
         });
 
         // Initialize virtual joystick
-        carCommand = (CarCommandPublisher) findViewById(R.id.virtualJoystick);
-        carCommand.setTopicName(CarCommandPublisher.VELOCITY_ACTION_TOPIC);
+        carCommand = new CarCommandPublisher();
+        JoystickView joystick = (JoystickView) findViewById(R.id.virtualJoystick);
+        joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
+            @Override
+            public void onMove(int angle, int strength) {
+                double linearVelocityX = 0.0D;
+                double angularVelocityZ = 0.0D;
 
+                if (strength != 0) {
+                    linearVelocityX = strength/100.0D;
+                    if (angle > 180) {
+                        // This case means user wants to reverse.
+                        linearVelocityX = -linearVelocityX;
+                    }
+                    angularVelocityZ = -Math.cos(Math.toRadians(angle));
+                }
+
+                Log.i(_TAG, "angle: " + angle + " - strength: " + strength);
+                Log.i(_TAG, "linear: " + linearVelocityX + " - angular: " + angularVelocityZ);
+                carCommand.publishCmdVelocity(linearVelocityX, angularVelocityZ);
+            }
+        });
         // Initialize simple actions to send to the camera
         Button btnUp = (Button)findViewById(R.id.btnForward);
         btnUp.setOnClickListener(new View.OnClickListener(){

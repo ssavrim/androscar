@@ -64,22 +64,8 @@ void publishSonarValues() {
         Serial.println(sonarName[i] + "," + MIN_DISTANCE + "," + MAX_DISTANCE + "," + range/SAMPLING_SIZE);
         //Serial.print(range/SAMPLING_SIZE);
         //Serial.print(",");
-        avoidCollision(range/SAMPLING_SIZE);
     }
     //Serial.println("");
-}
-void avoidCollision(unsigned int distance)
-{
-    if (distance <= MIN_DISTANCE) {
-        analogWrite(motorPin1, 0);
-        analogWrite(motorPin2, 0);
-        analogWrite(motorPin3, 0);
-        analogWrite(motorPin4, 0);
-        while(Serial.available() > 0) {
-            // Empty the serial buffer
-            Serial.read();
-        }
-    }
 }
 void motorLoop() {
   int availableBytes = Serial.available();

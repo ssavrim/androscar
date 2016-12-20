@@ -1,6 +1,7 @@
-import constants
 import rospy
 from sensor_msgs.msg import Range
+
+import constants
 
 
 class SensorListener(object):

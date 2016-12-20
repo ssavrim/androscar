@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.kreolite.androvision">
-
+    <uses-sdk tools:overrideLibrary="io.github.controlwear.virtual.joystick.android"/>
     <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"
