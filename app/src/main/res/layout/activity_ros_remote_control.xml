@@ -108,11 +108,17 @@
             android:layout_alignParentStart="true" />
 
         <io.github.controlwear.virtual.joystick.android.JoystickView
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
             android:id="@+id/virtualJoystick"
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            custom:JV_buttonColor="@color/colorAccent"
+            custom:JV_borderColor="@color/colorPrimary"
+            custom:JV_backgroundColor="@android:color/darker_gray"
+            custom:JV_borderWidth="4dp"
+            custom:JV_fixedCenter="true"/>
 
     </RelativeLayout>
 
