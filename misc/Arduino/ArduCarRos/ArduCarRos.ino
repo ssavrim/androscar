@@ -68,12 +68,13 @@ void publishSonarValues() {
     //Serial.println("");
 }
 void motorLoop() {
-  int availableBytes = Serial.available();
-  if (Serial.available() == PAYLOAD_SIZE) {
-    analogWrite(motorPin1, Serial.read());
-    analogWrite(motorPin2, Serial.read());
-    analogWrite(motorPin3, Serial.read());
-    analogWrite(motorPin4, Serial.read());
+  byte data[PAYLOAD_SIZE];
+  if (Serial.available() > 0) {
+    Serial.readBytes(data, PAYLOAD_SIZE);
+    analogWrite(motorPin1, data[0]);
+    analogWrite(motorPin2, data[1]);
+    analogWrite(motorPin3, data[2]);
+    analogWrite(motorPin4, data[3]);
   }
 }
 void setup() {
@@ -93,6 +94,7 @@ void setup() {
   pinMode(motorPin3, OUTPUT);
   pinMode(motorPin4, OUTPUT);
   Serial.begin(SERIALBAUDRATE);
+  Serial.setTimeout(50);
 }
 void loop() {
     sonarLoop();

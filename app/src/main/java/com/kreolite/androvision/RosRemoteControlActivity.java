@@ -88,15 +88,17 @@ public class RosRemoteControlActivity extends RosActivity {
     private void autoDriveMode(sensor_msgs.Range message) {
         if (mFrontRange != null) {
             try {
-                float minRange = message.getMinRange();
+                int minRange = (int) message.getMinRange();
                 int leftRange = mFrontRange.getInt("/left");
                 int centerRange = mFrontRange.getInt("/center");
                 int rightRange = mFrontRange.getInt("/right");
 
                 double angularVelocityZ = (double) (leftRange - rightRange) / (leftRange + rightRange);
-                double linearVelocityX = 1.0D;
+                angularVelocityZ = Math.round(angularVelocityZ * 10.0) / 10.0;
+                double linearVelocityX = 1;
                 if (leftRange <= minRange || centerRange <= minRange || rightRange <= minRange ) {
-                    linearVelocityX = -1.0D;
+                    linearVelocityX = -1;
+                    angularVelocityZ = -angularVelocityZ;
                 }
                 carCommand.publishCmdVelocity(linearVelocityX, angularVelocityZ);
             } catch(JSONException e) {

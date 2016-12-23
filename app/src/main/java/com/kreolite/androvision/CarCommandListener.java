@@ -90,8 +90,8 @@ public class CarCommandListener extends AbstractNodeMain {
                     int pin4 = 0;
 
                     if (linearRatio != 0) {
-                        int currentLinear = (int) (255 * linearRatio);
-                        int currentAngular = currentLinear - (int) abs(currentLinear * angularRatio);
+                        int currentLinear = (int) (255 * abs(linearRatio));
+                        int currentAngular = currentLinear - (int) (currentLinear * abs(angularRatio));
                         currentAngular = currentAngular >= 100 ? currentAngular : 100;
                         if (linearRatio > 0) {
                             pin1 = pin4 = 0;
@@ -111,6 +111,7 @@ public class CarCommandListener extends AbstractNodeMain {
                             }
                         }
                     }
+                    Log.i(TAG, "Command actions: " + pin1 + " - " + pin2 + " - " + pin3 + " - " + pin4);
                     mCarCommandBackend.setMotorActions(pin1, pin2, pin3, pin4);
                 } catch (Exception e) {
                     Log.e(TAG, e.getMessage());
