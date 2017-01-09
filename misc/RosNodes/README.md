@@ -10,6 +10,7 @@ To do that:
     - export ROS_MASTER_URI=http://<ip_address_of_your_robot>:11311 (.i.e http://192.168.1.1:11311)
     - export ROS_IP=<ip_address_of_your_host> (.i.e 192.168.1.2)
     - xhost +
+    - cd balltracker (or cd selfdriving depending on what you want to do)
     - docker-compose build
     - docker-compose up
 
