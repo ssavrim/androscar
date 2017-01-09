@@ -1,19 +1,9 @@
 version: '2'
 services:
-    imagerepublisher:
-        image: osrf/ros:indigo-desktop-full
-        container_name: imagerepublisher
+    autodrive:
+        build: ./selfdriving
+        container_name: autodrive
         network_mode: host
-        environment:
-            - "ROS_MASTER_URI=${ROS_MASTER_URI}"
-            - "ROS_IP=${ROS_IP}"
-        command: rosrun image_transport republish compressed in:=/camera/image raw out:=/camera2
-    balltracker:
-        build: ./balltracker
-        container_name: balltracker
-        network_mode: host
-        depends_on:
-            - "imagerepublisher"
         environment:
             - "DISPLAY"
             - "QT_X11_NO_MITSHM=1"
@@ -21,7 +11,7 @@ services:
             - "ROS_IP=${ROS_IP}"
         volumes:
             - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-        command: python balltracker.py
+        command: python scripts/autodrive.py
     selfdriving:
         build: ./selfdriving
         container_name: selfdriving
