@@ -92,7 +92,7 @@ public class CarCommandListener extends AbstractNodeMain {
                     if (linearRatio != 0) {
                         int currentLinear = (int) (255 * abs(linearRatio));
                         int currentAngular = currentLinear - (int) (currentLinear * abs(angularRatio));
-                        currentAngular = currentAngular >= 100 ? currentAngular : 100;
+                        //currentAngular = currentAngular >= 100 ? currentAngular : 100;
                         if (linearRatio > 0) {
                             pin1 = pin4 = 0;
                             pin2 = pin3 = currentLinear;

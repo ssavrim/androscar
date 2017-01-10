@@ -1,6 +1,6 @@
 #include <NewPing.h>
 
-#define SERIALBAUDRATE 9600
+#define SERIALBAUDRATE 115200
 #define PAYLOAD_SIZE 4 // Size of the payload which contains data to set pin of the motors.
 //HC-SR04 specification
 #define SONAR_NUM     3 // Number of sensors.
@@ -17,11 +17,14 @@
 
 //L298N
 //Motor A
-const int motorPin1  = 9;
-const int motorPin2  = 10;
+const int motorPin1  = 8;
+const int motorPin2  = 9;
 //Motor B
-const int motorPin3  = 11;
-const int motorPin4  = 12;
+const int motorPin3  = 10;
+const int motorPin4  = 11;
+
+// variable to store the actual bytes read from the receive buffer
+byte readLen = 0;
 
 unsigned long pingTimer[SONAR_NUM]; // Holds the times when the next ping should happen for each sensor.
 unsigned int cm[SONAR_NUM];         // Last ping distances.
@@ -70,11 +73,13 @@ void publishSonarValues() {
 void motorLoop() {
   byte data[PAYLOAD_SIZE];
   if (Serial.available() > 0) {
-    Serial.readBytes(data, PAYLOAD_SIZE);
-    analogWrite(motorPin1, data[0]);
-    analogWrite(motorPin2, data[1]);
-    analogWrite(motorPin3, data[2]);
-    analogWrite(motorPin4, data[3]);
+    readLen = Serial.readBytes(data, PAYLOAD_SIZE);
+    if (readLen != 0) {
+      analogWrite(motorPin1, data[0]);
+      analogWrite(motorPin2, data[1]);
+      analogWrite(motorPin3, data[2]);
+      analogWrite(motorPin4, data[3]);
+    }
   }
 }
 void setup() {
