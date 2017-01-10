@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import pandas as pd
+import numpy as np
 import rospy
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
@@ -24,17 +25,19 @@ class PredictModel(SensorListener):
         # Init publisher to send predicted command
         self._command_publisher = rospy.Publisher(constants.VELOCITY_ACTION_TOPIC, Twist, queue_size=10)
 
-    def X_scaling(self, scaler, values):
+    def X_scaling(self, values):
         # add dummy y value
-        values.add(0.)
-        scaled_values = scaler.transform(values)
+        values = [0.] + values
+        scaled_values = self._scaler.transform(values)
+        print(scaled_values)
         # remove y scaled value
-        return scaled_values[:-1]
+        return scaled_values[1:]
 
-    def Y_inverse_scaling(self, scaler, value):
+    def Y_inverse_scaling(self, value):
         # add dummy X values for left, right, delta
-        values = [0., 0., 0.]  + value
-        return scaler.inverse_transform(values)[-1]
+        values = [value, 0., 0., 0.]
+        print(values)
+        return self._scaler.inverse_transform(values)[0]
 
     def sonar_callback(self, data):
         SensorListener.sonar_callback(self, data)
@@ -47,10 +50,11 @@ class PredictModel(SensorListener):
             predict_val = self.Y_inverse_scaling(predict_val)
             linear_x = 1 if predict_val != 0 else 0
             cmd_vel = Twist(Vector3(linear_x, 0, 0), Vector3(0, 0, predict_val))
+            print(cmd_vel)
             self._command_publisher.publish(cmd_vel)
 
 if __name__ == '__main__':
-    rosnode = PredictModel(model_to_use='model.pkl', scaler_to_use='scaler.pkl')
+    rosnode = PredictModel(model_to_use='./scripts/models/model.pkl', scaler_to_use='./scripts/models/scaler.pkl')
     try:
         rosnode.init()
         rospy.spin()

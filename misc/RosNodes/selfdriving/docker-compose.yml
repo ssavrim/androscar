@@ -12,5 +12,5 @@ services:
         volumes:
             - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
             - "~/.androvision/dataset:/dataset:rw"
-        command: python scripts/learning.py
+        command: python scripts/ml_drive.py
 

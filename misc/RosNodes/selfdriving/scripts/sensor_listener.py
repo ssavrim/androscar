@@ -18,6 +18,6 @@ class SensorListener(object):
         if data.range == 0:
             return
         if data.range <= 10:
-            rospy.logwarn("ALERT !")
+            rospy.logwarn("ALERT ! {} cm.".format(data.range))
         if data.header.frame_id in self._sensor_values:
             self._sensor_values[data.header.frame_id] = data.range
