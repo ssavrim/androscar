@@ -15,6 +15,11 @@
 #define PING_INTERVAL 30 // Milliseconds between sensor pings (29ms is about the min to avoid cross-sensor echo).
 #define SAMPLING_SIZE 3 // Sampling of ping size. The objective is to reduce noise.
 
+//BUTTON SWITCH
+const int frontBtnPin = 12;  // the number of the pushbutton pin
+const int ledPin =  13;      // the number of the LED pin
+int buttonState = 0;         // variable for reading the pushbutton status
+
 //L298N
 //Motor A
 const int motorPin1  = 8;
@@ -38,6 +43,22 @@ NewPing sonar[SONAR_NUM] = {     // Sensor object array.
   NewPing(CENTER_TRIGGER_PIN, CENTER_ECHO_PIN, MAX_DISTANCE)
 };
 
+int shockDetect() {
+  // read the state of the pushbutton value:
+  buttonState = digitalRead(frontBtnPin);
+
+  // check if the pushbutton is pressed.
+  // if it is, the buttonState is HIGH:
+  if (buttonState == HIGH) {
+    // turn LED on:
+    digitalWrite(ledPin, HIGH);
+    return 1;
+  } else {
+    // turn LED off:
+    digitalWrite(ledPin, LOW);
+    return 0;
+  }
+}
 void echoCheck() { // If ping received, set the sensor distance to array.
   if (sonar[currentSensor].check_timer())
     cm[currentSensor] = sonar[currentSensor].ping_result / US_ROUNDTRIP_CM;
@@ -64,7 +85,7 @@ void publishSonarValues() {
             sampling[i][j] = sampling[i][j+1];
             range += sampling[i][j];
         }
-        Serial.println(sonarName[i] + "," + MIN_DISTANCE + "," + MAX_DISTANCE + "," + range/SAMPLING_SIZE);
+        Serial.println(sonarName[i] + "," + MIN_DISTANCE + "," + MAX_DISTANCE + "," + range/SAMPLING_SIZE + "," + shockDetect());
         //Serial.print(range/SAMPLING_SIZE);
         //Serial.print(",");
     }
@@ -98,6 +119,9 @@ void setup() {
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
   pinMode(motorPin4, OUTPUT);
+  // Initialize switch button
+  pinMode(frontBtnPin, INPUT);
+  pinMode(ledPin, OUTPUT);
   Serial.begin(SERIALBAUDRATE);
   Serial.setTimeout(50);
 }
