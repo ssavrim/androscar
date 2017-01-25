@@ -12,6 +12,7 @@ This folder contains all information in case the car embeds a raspberrypi connec
 Raspberry Pi (tested on RPI B+)
 - ROS indigo, rosserial, rosserial_arduino
 - arduino (sudo apt-get install arduino)
+- picocom (sudo apt-get install picocom)
 - ino build (sudo pip install ino)
 
 Arduino (tested on arduino nano)
