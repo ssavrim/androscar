@@ -1,12 +1,12 @@
 This folder contains all information in case the car embeds a raspberrypi connected to an arduino.
-
-------------------       ----------------\n
-|                |       |              |----reads---- ultrasounds sensors\n
-|  RASPBERRY PI  | ------| ARDUINO NANO |\n
-|  ROS+rosserial |       |   ros_lib    |----control-- motor\n
-|                |       |              |\n
-------------------       ----------------\n
-
+```text
+------------------       ----------------
+|                |       |              |----reads---- ultrasounds sensors
+|  RASPBERRY PI  | ------| ARDUINO NANO |
+|  ROS+rosserial |       |   ros_lib    |----control-- motor
+|                |       |              |
+------------------       ----------------
+```
 # Prerequisite
 
 Raspberry Pi (tested on RPI B+)
