@@ -75,7 +75,7 @@ public class CarSensorPublisher extends AbstractNodeMain {
                     String[] messageSplit = message[i].split(",");
                     Time currentTime = mConnectedNode.getCurrentTime();
                     sensor_msgs.Range range = rangePublisher.newMessage();
-                    range.getHeader().setFrameId("/" + messageSplit[0]);
+                    range.getHeader().setFrameId(messageSplit[0]);
                     range.getHeader().setStamp(currentTime);
                     range.setRadiationType(sensor_msgs.Range.ULTRASOUND);
                     range.setFieldOfView(0.1f);

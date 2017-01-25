@@ -51,7 +51,10 @@ public class RosRemoteControlActivity extends RosActivity {
     }
     @Override
     protected void onPause() {
-        RosRemoteControlActivity.this.nodeMainExecutorService.forceShutdown();
+        Bundle bundle = getIntent().getBundleExtra(MASTER_URI_EXTRA);
+        if (bundle != null) {
+            RosRemoteControlActivity.this.nodeMainExecutorService.forceShutdown();
+        }
         super.onPause();
     }
     public void startMasterChooser() {
@@ -89,9 +92,9 @@ public class RosRemoteControlActivity extends RosActivity {
         if (mFrontRange != null) {
             try {
                 int minRange = (int) message.getMinRange();
-                int leftRange = mFrontRange.getInt("/left");
-                int centerRange = mFrontRange.getInt("/center");
-                int rightRange = mFrontRange.getInt("/right");
+                int leftRange = mFrontRange.getInt("left");
+                int centerRange = mFrontRange.getInt("center");
+                int rightRange = mFrontRange.getInt("right");
 
                 double angularVelocityZ = (double) (leftRange - rightRange) / (leftRange + rightRange);
                 angularVelocityZ = Math.round(angularVelocityZ * 10.0) / 10.0;
@@ -135,14 +138,15 @@ public class RosRemoteControlActivity extends RosActivity {
                     if (message.getRange() > 0) {
                         mFrontRange.put(message.getHeader().getFrameId(), message.getRange());
                     }
-                    displayMsg = "left: " + mFrontRange.get("/left") + " cm";
-                    displayMsg += " - " + "center: " + mFrontRange.get("/center") + " cm";
-                    displayMsg += " - " + "right: " + mFrontRange.get("/right") + " cm";
+                    displayMsg = "left: " + mFrontRange.get("left") + " cm";
+                    displayMsg += " - " + "center: " + mFrontRange.get("center") + " cm";
+                    displayMsg += " - " + "right: " + mFrontRange.get("right") + " cm";
                     if(driveModeAuto.isChecked()) {
                         autoDriveMode(message);
                     }
                     return displayMsg;
                 } catch(JSONException e) {
+                    Log.e(_TAG, "Error when storing range sensors data: " + e.getMessage());
                     return displayMsg;
                 }
             }
