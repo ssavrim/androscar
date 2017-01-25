@@ -1,17 +1,18 @@
 This folder contains all information in case the car embeds a raspberrypi connected to an arduino.
-
+```text
 ------------------       ----------------
 |                |       |              |----reads---- ultrasounds sensors
 |  RASPBERRY PI  | ------| ARDUINO NANO |
 |  ROS+rosserial |       |   ros_lib    |----control-- motor
 |                |       |              |
 ------------------       ----------------
-
+```
 # Prerequisite
 
 Raspberry Pi (tested on RPI B+)
 - ROS indigo, rosserial, rosserial_arduino
 - arduino (sudo apt-get install arduino)
+- picocom (sudo apt-get install picocom)
 - ino build (sudo pip install ino)
 
 Arduino (tested on arduino nano)
@@ -23,7 +24,10 @@ Arduino (tested on arduino nano)
 - git clone https://github.com/ssavrim/androvision.git
 - cd androvision/misc/RaspberryPi
 - copy ros_lib and NewPing libraries in ./lib folder
-- start.sh
+- ino clean
+- ino build -m nano328
+- ino upload -m nano328
+- roslaunch serial_node.launch
 
 # Reference
 
