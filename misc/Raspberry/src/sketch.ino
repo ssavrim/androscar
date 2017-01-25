@@ -66,6 +66,8 @@ void motorCallback(const geometry_msgs::Twist& msg){
   } else {
     int currentLinear = (int) (255 * abs(msg.linear.x));
     int currentAngular = currentLinear - (int) (currentLinear * abs(msg.angular.z));
+    nh.loginfo("X=" + currentLinear);
+    nh.loginfo("Z=" + currentAngular);
     if ( msg.linear.x > 0.0) {
       if (msg.angular.z < 0.0) {
         setMotor(0, currentAngular, currentLinear, 0);
@@ -74,9 +76,9 @@ void motorCallback(const geometry_msgs::Twist& msg){
       }
     } else {
       if (msg.angular.z < 0.0) {
-        setMotor(currentAngular, 0, 0, currentLinear);
+        setMotor(255, 0, 0, 255);
       } else {
-        setMotor(currentLinear, 0, 0, currentAngular);
+        setMotor(255, 0, 0, 255);
       }     
     }
   }
