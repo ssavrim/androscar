@@ -1,7 +1,7 @@
-# Androvision
+# AndROSCar
 Some computer vision application using android.<br>
 The objective is not to reinvent the wheel but get inspired and have fun with existing projects around computer vision, android, arduino ...<br>
-The purpose is to build a cheap robot which can be driven by a smartphone or ROS infrastructure.
+The purpose is to build a cheap robot which can be driven by a smartphone using ROS architecture.
 
 # References
 
