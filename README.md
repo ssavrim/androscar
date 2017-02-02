@@ -14,6 +14,7 @@ Carkit:
 
 # Setup and Installation
 Build and install the apk on the embedded phone and the remote control phone.
+
 Build and install the arduino code using the source code from misc/Arduino.
 
 # References
