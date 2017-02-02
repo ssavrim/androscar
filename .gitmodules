@@ -1,0 +1,3 @@
+[submodule "misc/Arduino/libraries/arduino-new-ping"]
+	path = misc/Arduino/libraries/arduino-new-ping
+	url = https://bitbucket.org/teckel12/arduino-new-ping.git
