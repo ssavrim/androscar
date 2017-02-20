@@ -43,3 +43,6 @@ captures/
 
 # proxy settings
 gradle.properties
+
+# python files
+*.pyc
