@@ -56,8 +56,7 @@ public class CarCommandListener extends AbstractNodeMain {
                             cameraId = (cameraId + 1) % (numberOfCameras + 1);
                             mCamera.releaseCamera();
                             if (cameraId != numberOfCameras) {
-                                mCamera.setCamera(Camera.open(cameraId));
-                                Log.d(TAG, "setCamera getPreviewSize: " + mCamera.getPreviewSize().height + "x" + mCamera.getPreviewSize().width);
+                                mCamera.setCamera(cameraId);
                             }
                         }
                     } else if(command.equals(CarCommandPublisher.STOP)) {

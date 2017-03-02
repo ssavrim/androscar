@@ -14,10 +14,20 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 import org.ros.address.InetAddressFactory;
 import org.ros.android.RosActivity;
 import org.ros.node.NodeConfiguration;
@@ -27,19 +37,73 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Set;
 
-public class RosCameraActivity extends RosActivity {
+public class RosCameraActivity extends RosActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String _TAG = "RosCamera";
-    private int cameraId=0;
+    private int cameraId;
     public CarCommandListener carCommand;
     public CarCameraPublisher carCamera;
+    private CameraBridgeViewBase mOpenCvCameraView;
     public CarSensorPublisher carSensor;
     private UsbHandler mHandler;
     private UsbService usbService;
     private SensorManager mSensorManager;
     private NsdHelper mNsdHelper;
 
+    private Size SCREEN_SIZE = new Size(640, 480);
+    private Mat mRgba;
+    private Mat mRgbaF;
+    private Mat mRgbaT;
+
     public RosCameraActivity() {
         super(_TAG, _TAG);
+    }
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS:
+                {
+                    Log.i(_TAG, "OpenCV loaded successfully");
+                    mOpenCvCameraView.enableView();
+                } break;
+                default:
+                {
+                    super.onManagerConnected(status);
+                } break;
+            }
+        }
+    };
+
+
+
+    @Override
+    public void onCameraViewStarted(int width, int height) {
+        mRgba = new Mat(height, width, CvType.CV_8UC4);
+        mRgbaF = new Mat(height, width, CvType.CV_8UC4);
+        mRgbaT = new Mat(width, width, CvType.CV_8UC4);  // NOTE width,width is NOT a typo
+    }
+
+    @Override
+    public void onCameraViewStopped() {
+        mRgba.release();
+    }
+
+    @Override
+    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        mRgba = inputFrame.rgba();
+        // Rotate mRgba 90 degrees
+        Core.transpose(mRgba, mRgbaT);
+        Imgproc.resize(mRgbaT, mRgbaF, mRgbaF.size(), 0, 0, 0);
+        if(cameraId == 1) {
+            // Rotation is not the same for front camera
+            Core.flip(mRgbaF, mRgba, -1);
+        } else {
+            // Rotation for back camera
+            Core.flip(mRgbaF, mRgba, 1);
+        }
+        carCamera.publishImage(mRgba, SCREEN_SIZE);
+        return mRgba;
     }
 
     @Override
@@ -49,7 +113,11 @@ public class RosCameraActivity extends RosActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_ros_camera);
-        carCamera = (CarCameraPublisher) findViewById(R.id.ros_camera_preview_view);
+        mOpenCvCameraView = (CameraBridgeViewBase)  findViewById(R.id.ros_camera_preview_view);
+        mOpenCvCameraView.setCvCameraViewListener(this);
+        mOpenCvCameraView.setMaxFrameSize((int) SCREEN_SIZE.width, (int) SCREEN_SIZE.height);
+
+        carCamera = new CarCameraPublisher(mOpenCvCameraView);
         mHandler = new UsbHandler(this);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mNsdHelper = new NsdHelper(this);
@@ -65,6 +133,13 @@ public class RosCameraActivity extends RosActivity {
         super.onResume();
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
+        if (!OpenCVLoader.initDebug()) {
+            Log.d(_TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+        } else {
+            Log.d(_TAG, "OpenCV library found inside package. Using it!");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
     }
     @Override
     public void onPause() {
@@ -77,6 +152,9 @@ public class RosCameraActivity extends RosActivity {
         if (usbConnection != null) {
             unbindService(usbConnection);
         }
+        if(mOpenCvCameraView != null) {
+            mOpenCvCameraView.disableView();
+        }
         RosCameraActivity.this.nodeMainExecutorService.forceShutdown();
         super.onPause();
     }
@@ -88,7 +166,7 @@ public class RosCameraActivity extends RosActivity {
             if (numberOfCameras > 1) {
                 cameraId = (cameraId + 1) % numberOfCameras;
                 carCamera.releaseCamera();
-                carCamera.setCamera(Camera.open(cameraId));
+                carCamera.setCamera(cameraId);
                 toast = Toast.makeText(this, "Switching cameras.", Toast.LENGTH_SHORT);
             } else {
                 toast = Toast.makeText(this, "No alternative cameras to switch to.", Toast.LENGTH_SHORT);
@@ -108,7 +186,7 @@ public class RosCameraActivity extends RosActivity {
         Intent intent = getIntent();
         cameraId = intent.getIntExtra("cameraId", -1);
         if (cameraId != -1) {
-            carCamera.setCamera(Camera.open(cameraId));
+            carCamera.setCamera(cameraId);
         }
 
         URI masterUri = getMasterUri();

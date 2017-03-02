@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
+import org.opencv.android.CameraBridgeViewBase;
 import org.ros.address.InetAddressFactory;
 import org.ros.android.RosActivity;
 import org.ros.node.NodeConfiguration;
@@ -17,6 +18,7 @@ public class RosCameraGPIOActivity extends RosActivity {
     private int cameraId=0;
     public CarCommandListener carCommand;
     public CarCameraPublisher carCamera;
+    private CameraBridgeViewBase mOpenCvCameraView;
     public CarSensorPublisher carSensor;
     private SensorManager mSensorManager;
     private NsdHelper mNsdHelper;
@@ -31,7 +33,8 @@ public class RosCameraGPIOActivity extends RosActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ros_camera);
-        carCamera = (CarCameraPublisher) findViewById(R.id.ros_camera_preview_view);
+        mOpenCvCameraView = (CameraBridgeViewBase)  findViewById(R.id.ros_camera_preview_view);
+        carCamera = new CarCameraPublisher(mOpenCvCameraView);
         carCommand = new CarCommandListener(new CarCommandGPIOBackend(), carCamera);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         carSensor = new CarSensorPublisher(mSensorManager);
