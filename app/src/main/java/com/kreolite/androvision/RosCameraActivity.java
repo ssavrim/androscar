@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -74,8 +73,6 @@ public class RosCameraActivity extends RosActivity implements CameraBridgeViewBa
             }
         }
     };
-
-
 
     @Override
     public void onCameraViewStarted(int width, int height) {

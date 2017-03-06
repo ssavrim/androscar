@@ -1,26 +1,14 @@
 package com.kreolite.androvision;
 
-import android.content.Context;
-import android.util.AttributeSet;
 import android.util.Log;
 
 import com.kreolite.androvision.cv_bridge.CvImage;
 import com.kreolite.androvision.cv_bridge.Format;
 import com.kreolite.androvision.cv_bridge.ImageEncodings;
 
-import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
-
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-
 import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 import org.ros.message.Time;
 import org.ros.namespace.GraphName;
 import org.ros.node.AbstractNodeMain;
@@ -42,9 +30,6 @@ public class CarCameraPublisher extends AbstractNodeMain {
 
     private ConnectedNode mConnectedNode;
     private CameraBridgeViewBase   mOpenCvCameraView;
-    private Mat                    mRgba;
-    private Mat                    mRgbaF;
-    private Mat                    mRgbaT;
 
     public GraphName getDefaultNodeName() {
         return GraphName.of("car_camera/publisher");
@@ -87,7 +72,7 @@ public class CarCameraPublisher extends AbstractNodeMain {
             Time currentTime = mConnectedNode.getCurrentTime();
             String frameId = "camera";
             sensor_msgs.CompressedImage image = imagePublisher.newMessage();
-            image.setFormat("jpeg");
+            image.setFormat(Format.JPEG.toString());
             image.getHeader().setStamp(currentTime);
             image.getHeader().setFrameId(frameId);
 

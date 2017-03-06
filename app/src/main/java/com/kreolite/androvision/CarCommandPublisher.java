@@ -16,6 +16,7 @@ import org.ros.node.topic.Publisher;
  */
 
 public class CarCommandPublisher extends AbstractNodeMain {
+    private static final String TAG = "CarCameraPublisher";
     private Publisher<std_msgs.String> publisherCmdSimple;
     private Publisher<geometry_msgs.Twist> publisherCmdVelocity;
 
@@ -50,7 +51,7 @@ public class CarCommandPublisher extends AbstractNodeMain {
 
     public void publishCmdSimple(String command) {
         if (publisherCmdSimple != null) {
-            Log.i("CarCommand", command);
+            Log.i(TAG, command);
             std_msgs.String message = publisherCmdSimple.newMessage();
             message.setData(command);
             publisherCmdSimple.publish(message);

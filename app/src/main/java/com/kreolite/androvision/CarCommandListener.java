@@ -47,8 +47,6 @@ public class CarCommandListener extends AbstractNodeMain {
             public void onNewMessage(std_msgs.String message) {
                 try {
                     String command = message.getData();
-                    JSONObject jsonObj = new JSONObject();
-                    String currentPinValues = "";
                     if (command.equals(CarCommandPublisher.SWITCH_CAMERA)) {
                         // Switch camera or disable it
                         int numberOfCameras = Camera.getNumberOfCameras();

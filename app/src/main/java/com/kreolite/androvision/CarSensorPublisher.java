@@ -18,6 +18,7 @@ import org.ros.node.topic.Publisher;
  */
 
 public class CarSensorPublisher extends AbstractNodeMain {
+    private static final String TAG = "CarSensorPublisher";
     public static final String FRONT_RANGE_TOPIC = "car_sensor/front_range";
     public static final String ORIENTATION_TOPIC = "car_sensor/orientation";
 
@@ -71,7 +72,7 @@ public class CarSensorPublisher extends AbstractNodeMain {
             if (rangePublisher != null && !messages.isEmpty()) {
                 String[] message = messages.split("\n");
                 for (int i = 0; i < message.length; i++ ) {
-                    Log.d("CarSensor", "Publish front range: " + message);
+                    Log.d(TAG, "Publish front range: " + message);
                     String[] messageSplit = message[i].split(",");
                     Time currentTime = mConnectedNode.getCurrentTime();
                     sensor_msgs.Range range = rangePublisher.newMessage();
@@ -86,7 +87,7 @@ public class CarSensorPublisher extends AbstractNodeMain {
                 }
             }
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            Log.e("CarSensor", "Wrong range: " + e);
+            Log.e(TAG, "Wrong range: " + e);
         }
     }
 
@@ -104,7 +105,7 @@ public class CarSensorPublisher extends AbstractNodeMain {
                 float[] quaternion = new float[4];
                 SensorManager.getQuaternionFromVector(quaternion, event.values);
                 geometry_msgs.PoseStamped pose = this.publisher.newMessage();
-                pose.getHeader().setFrameId("/map");
+                pose.getHeader().setFrameId("map");
                 pose.getHeader().setStamp(currentTime);
                 pose.getPose().getOrientation().setW((double)quaternion[0]);
                 pose.getPose().getOrientation().setX((double)quaternion[1]);
