@@ -122,7 +122,7 @@ public class RosRemoteControlActivity extends RosActivity {
     private void setup() {
         // Initialize view of the car camera
         rosImageView = (RosImageView<sensor_msgs.CompressedImage>)findViewById(R.id.rosImageView);
-        rosImageView.setTopicName("/camera/image/compressed");
+        rosImageView.setTopicName(CarCameraPublisher.CAMERA_IMAGE_TOPIC);
         rosImageView.setMessageType(sensor_msgs.CompressedImage._TYPE);
         rosImageView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
 
